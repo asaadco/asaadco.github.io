@@ -1,0 +1,14 @@
+body {
+  background: #201624;
+  margin: 0;
+  overflow: hidden;
+}
+#target {
+	background: #201624;
+	display: block;
+}
+#logo { 
+	position: absolute;
+	bottom: 1%;
+	right: 1%;
+}
