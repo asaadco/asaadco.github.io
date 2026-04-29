@@ -64,27 +64,25 @@ Deferred to future release. Acknowledged but not in scope for v1.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SITE-01 | Phase 1 | Pending |
-| SITE-02 | Phase 1 | Pending |
-| SITE-03 | — | Pending |
-| SITE-04 | — | Pending |
-| SITE-05 | — | Pending |
 | HERO-01 | Phase 2 | Pending |
 | HERO-02 | Phase 2 | Pending |
-| JOUR-01 | Phase 3 | Pending |
-| JOUR-02 | Phase 3 | Pending |
-| JOUR-03 | Phase 3 | Pending |
-| VALS-01 | Phase 4 | Pending |
-| VALS-02 | Phase 4 | Pending |
-| VALS-03 | Phase 4 | Pending |
-| CONT-01 | Phase 5 | Pending |
-| CONT-02 | Phase 5 | Pending |
-| CONT-03 | Phase 5 | Pending |
-| CONT-04 | Phase 5 | Pending |
+| JOUR-01 | Phase 2 | Pending |
+| JOUR-02 | Phase 2 | Pending |
+| JOUR-03 | Phase 2 | Pending |
+| SITE-04 | Phase 2 | Pending |
+| SITE-05 | Phase 2 | Pending |
+| VALS-01 | Phase 3 | Pending |
+| VALS-02 | Phase 3 | Pending |
+| VALS-03 | Phase 3 | Pending |
+| CONT-01 | Phase 4 | Pending |
+| CONT-02 | Phase 4 | Pending |
+| CONT-03 | Phase 4 | Pending |
+| CONT-04 | Phase 4 | Pending |
+| SITE-02 | Phase 4 | Pending |
+| SITE-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 17 total
@@ -93,4 +91,4 @@ Populated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-29*
-*Last updated: 2026-04-29 after initial definition*
+*Last updated: 2026-04-29 after roadmap creation*
