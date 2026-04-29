@@ -63,9 +63,9 @@ Single-page scroll. Sections in order:
 
 ## Key Configuration Notes
 
-- `astro.config.mjs` must set `site: 'https://neoasaad.github.io'` and `base: '/Asaad_Webpage'`
+- `astro.config.mjs` must set `site: 'https://neoasaad.github.io'` — no `base` needed (user page repo)
 - GitHub Pages source must be set to **GitHub Actions** in repo settings (not `gh-pages` branch)
-- All internal `href` attributes must be prefixed with the base path
+- Internal `href` attributes do NOT need a base path prefix (root deployment)
 
 ## Phase Roadmap
 
