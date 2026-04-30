@@ -2,13 +2,13 @@
 
 **Project:** Asaad Personal Website
 **Milestone:** v1 — Launch
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-04-30
 
 ---
 
 ## Current Phase
 
-Phase 1: Foundation and Deployment Pipeline — Not Started
+Phase 1: Foundation and Deployment Pipeline — Ready to Execute (3 plans)
 
 ---
 
@@ -16,7 +16,7 @@ Phase 1: Foundation and Deployment Pipeline — Not Started
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | Foundation and Deployment Pipeline | Not Started |
+| 1 | Foundation and Deployment Pipeline | Ready to Execute |
 | 2 | Static Sections | Not Started |
 | 3 | Interactive Layer | Not Started |
 | 4 | Contact, Polish, and Launch | Not Started |
@@ -66,7 +66,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 - Typography: Inter Variable (body) + Playfair Display (headings) via Astro Font API
 - Contact form: Web3Forms (250 free/month) — Formspree as fallback
 - Values card interaction: details/summary or vanilla JS — NO React/Vue
-- GitHub Pages config: `site: https://neoasaad.github.io`, `base: /Asaad_Webpage`
+- GitHub Pages config: `site: https://neoasaad.github.io`, no `base` (user page repo — deploys to root)
 
 ### Content Dependencies (must be provided by Asaad before phase start)
 
@@ -90,5 +90,5 @@ None at start.
 
 ## Session Continuity
 
-Last action: Roadmap created (2026-04-29)
-Next action: `/gsd-plan-phase 1`
+Last action: Phase 1 planned — 3 plans in 2 waves (2026-04-30)
+Next action: `/gsd-execute-phase 1`
