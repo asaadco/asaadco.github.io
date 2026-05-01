@@ -1,0 +1,20 @@
+/* src/styles/global.css — Phase 1: token shell only, content tokens come in Phase 2 */
+:root {
+  /* Typography — bridge Astro Font API variables to project-level aliases */
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
