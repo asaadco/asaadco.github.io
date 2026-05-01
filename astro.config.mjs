@@ -4,7 +4,7 @@
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
-  site: "https://neoasaad.github.io",
+  site: "https://asaad101.sa",
   output: "static",
   fonts: [
     {

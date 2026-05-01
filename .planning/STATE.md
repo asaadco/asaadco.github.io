@@ -66,7 +66,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 - Typography: Inter Variable (body) + Playfair Display (headings) via Astro Font API
 - Contact form: Web3Forms (250 free/month) — Formspree as fallback
 - Values card interaction: details/summary or vanilla JS — NO React/Vue
-- GitHub Pages config: `site: https://neoasaad.github.io`, no `base` (user page repo — deploys to root)
+- GitHub Pages config: `site: https://asaad101.sa`, no `base` (user page repo — deploys to root)
 
 ### Content Dependencies (must be provided by Asaad before phase start)
 

@@ -37,10 +37,10 @@
 **Success Criteria** (what must be TRUE):
   1. Running `pnpm build` locally produces a `dist/` directory with no errors
   2. Pushing to `main` triggers the GitHub Actions workflow and the deploy step completes successfully
-  3. The live GitHub Pages URL (`https://neoasaad.github.io`) loads the placeholder page with no 404 asset errors
-  4. `astro.config.mjs` has `site: "https://neoasaad.github.io"` and `output: "static"` set correctly (NO `base` property — user page repo)
+  3. The live GitHub Pages URL (`https://asaad101.sa`) loads the placeholder page with no 404 asset errors
+  4. `astro.config.mjs` has `site: "https://asaad101.sa"` and `output: "static"` set correctly (NO `base` property — user page repo)
 
-> **Note (2026-04-29 plan):** Earlier drafts of criteria #3 and #4 referenced `base: /Asaad_Webpage` and the URL `https://neoasaad.github.io/Asaad_Webpage`. CLAUDE.md (authoritative) and the most recent commit `7cf0fe8` corrected this — the project deploys to a user page repo (`neoasaad/neoasaad.github.io`) at the root URL with NO `base`. Criteria above reflect the corrected, authoritative configuration.
+> **Note (2026-04-29 plan):** Earlier drafts of criteria #3 and #4 referenced `base: /Asaad_Webpage` and the URL `https://asaad101.sa/Asaad_Webpage`. CLAUDE.md (authoritative) and the most recent commit `7cf0fe8` corrected this — the project deploys to a user page repo (`asaadco/asaadco.github.io`) at the root URL with NO `base`. Criteria above reflect the corrected, authoritative configuration.
 
 **Plans:** 2/3 plans executed
 - [x] 01-01-PLAN.md — Scaffold Astro 6 project with locked config (astro.config.mjs, Layout, placeholder index, global.css)

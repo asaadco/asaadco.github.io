@@ -18,15 +18,15 @@ for CI/CD. No component framework, no Tailwind, no adapters. Fonts are loaded vi
 API with the built-in `fontProviders.fontsource()` provider — no separate font packages to install.
 
 The most important decision in this phase is the correct `astro.config.mjs` configuration. The
-project targets a **user page repo** (`neoasaad/neoasaad.github.io`), which deploys to the root
-URL `https://neoasaad.github.io`. User page repos do NOT need a `base` path — unlike project page
+project targets a **user page repo** (`asaadco/asaadco.github.io`), which deploys to the root
+URL `https://asaad101.sa`. User page repos do NOT need a `base` path — unlike project page
 repos (e.g., `username/Asaad_Webpage`) which would require `base: '/Asaad_Webpage'`. CLAUDE.md is
 authoritative on this point and the most recent commit ("correct astro config — user page repo, no
 base path needed") confirms this decision.
 
 **Primary recommendation:** Scaffold a minimal Astro 6 project with `pnpm create astro@latest`,
 configure `astro.config.mjs` with `site` only (no `base`), add the GitHub Actions workflow, push
-to `neoasaad/neoasaad.github.io`, and verify the live URL loads.
+to `asaadco/asaadco.github.io`, and verify the live URL loads.
 
 ---
 
@@ -53,7 +53,7 @@ that contradict these.
 | Fonts | Astro Font API with `fontProviders.fontsource()` — Inter Variable + Playfair Display |
 | Hosting | GitHub Pages via `withastro/action@v6` workflow |
 | No component framework | Vanilla Astro + vanilla JS only (no React, Vue, Svelte) |
-| `site` config | `'https://neoasaad.github.io'` — no `base` (user page repo) |
+| `site` config | `'https://asaad101.sa'` — no `base` (user page repo) |
 | Internal hrefs | Do NOT prefix with base path |
 | GitHub Pages source | Must be set to "GitHub Actions" in repo Settings (not `gh-pages` branch) |
 
@@ -133,13 +133,13 @@ actions/deploy-pages@v5
   - Deploys artifact to github-pages environment
         |
         v
-https://neoasaad.github.io  (live URL)
+https://asaad101.sa  (live URL)
 ```
 
 ### Recommended Project Structure
 
 ```
-.                          # repo root (neoasaad/neoasaad.github.io)
+.                          # repo root (asaadco/asaadco.github.io)
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml     # GitHub Actions workflow
@@ -169,7 +169,7 @@ https://neoasaad.github.io  (live URL)
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
-  site: "https://neoasaad.github.io",
+  site: "https://asaad101.sa",
   output: "static",
   fonts: [
     {
@@ -291,7 +291,7 @@ h1, h2, h3 {
 ### Anti-Patterns to Avoid
 
 - **`base: '/Asaad_Webpage'` in astro.config.mjs:** This is for project page repos. The target
-  repo is `neoasaad/neoasaad.github.io` (user page) — no base needed. Adding it will break asset
+  repo is `asaadco/asaadco.github.io` (user page) — no base needed. Adding it will break asset
   paths (all assets will look for `/Asaad_Webpage/...` which doesn't exist at root).
 - **`output: 'server'` or `output: 'hybrid'`:** GitHub Pages is static hosting only. Always use
   `output: 'static'`.
@@ -359,15 +359,15 @@ The `withastro/action` relies on it for package manager detection and cache key 
 ### Pitfall 4: Wrong repo — pushing Astro code to `Asaad_Webpage` instead of `neoasaad.github.io`
 
 **What goes wrong:** If code is pushed to a repo named `Asaad_Webpage` (which does not currently
-exist on GitHub), it deploys to `https://neoasaad.github.io/Asaad_Webpage` (project page), not
+exist on GitHub), it deploys to `https://asaad101.sa/Asaad_Webpage` (project page), not
 the root URL. All asset paths would then break unless `base: '/Asaad_Webpage'` is also set.
 **Why it happens:** Confusion between two repo naming strategies. CLAUDE.md and the most recent
-commit confirm the intent is `neoasaad/neoasaad.github.io` (user page repo, root URL).
-**How to avoid:** Ensure the GitHub remote is set to `git@github.com:neoasaad/neoasaad.github.io.git`
-or `https://github.com/neoasaad/neoasaad.github.io.git`. Verify with `git remote -v`.
+commit confirm the intent is `asaadco/asaadco.github.io` (user page repo, root URL).
+**How to avoid:** Ensure the GitHub remote is set to `git@github.com:asaadco/asaadco.github.io.git`
+or `https://github.com/asaadco/asaadco.github.io.git`. Verify with `git remote -v`.
 **Warning signs:** `git push` creates a new repo named `Asaad_Webpage` on GitHub.
 
-[VERIFIED: `curl https://api.github.com/repos/neoasaad/neoasaad.github.io` returns 200 + `has_pages: true`;
+[VERIFIED: `curl https://api.github.com/repos/asaadco/asaadco.github.io` returns 200 + `has_pages: true`;
  `curl https://api.github.com/repos/neoasaad/Asaad_Webpage` returns 404]
 
 ### Pitfall 5: Fontsource font name mismatch
@@ -392,13 +392,13 @@ This is the most important clarification for the planner.
 
 **The conflict:**
 - ROADMAP.md success criterion #4 (written earlier) references `base: /Asaad_Webpage` and URL
-  `https://neoasaad.github.io/Asaad_Webpage`
+  `https://asaad101.sa/Asaad_Webpage`
 - STATE.md Accumulated Context says `base: /Asaad_Webpage`
-- CLAUDE.md (authoritative, checked in) says: `site: 'https://neoasaad.github.io'` — no `base` needed
+- CLAUDE.md (authoritative, checked in) says: `site: "https://asaad101.sa"` — no `base` needed
 - Most recent commit `7cf0fe8` is explicitly titled "correct astro config — user page repo, no base path needed"
 
 **The resolution (verified):**
-- Repo `neoasaad/neoasaad.github.io` exists on GitHub with `has_pages: true`
+- Repo `asaadco/asaadco.github.io` exists on GitHub with `has_pages: true`
 - Repo `neoasaad/Asaad_Webpage` does NOT exist on GitHub (returns 404)
 - GitHub Pages user page repos (`<username>.github.io`) deploy to the root URL — no `base` needed
 - Official Astro docs confirm: "If your repository name matches the special `<username>.github.io`
@@ -408,7 +408,7 @@ This is the most important clarification for the planner.
 ```javascript
 // astro.config.mjs
 export default defineConfig({
-  site: "https://neoasaad.github.io",
+  site: "https://asaad101.sa",
   output: "static",
   // NO base property
 });
@@ -446,7 +446,7 @@ import Layout from "../layouts/Layout.astro";
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
-  site: "https://neoasaad.github.io",
+  site: "https://asaad101.sa",
   output: "static",
   fonts: [
     {
@@ -541,7 +541,7 @@ html {
 |--------|----------|-----------|-------------------|-------------|
 | SITE-01 | Astro builds without errors | smoke | `pnpm build` | ❌ Wave 0 — package.json must exist |
 | SITE-01 | GitHub Actions workflow triggers on push | manual-only | Push to main, observe Actions tab | n/a |
-| SITE-01 | Live URL loads with no 404s | manual-only | Open `https://neoasaad.github.io` in browser | n/a |
+| SITE-01 | Live URL loads with no 404s | manual-only | Open `https://asaad101.sa` in browser | n/a |
 | SITE-01 | No asset 404s in browser DevTools network tab | manual-only | Inspect network tab for 404 responses | n/a |
 
 **Manual-only justification:** CI/CD and live URL verification require a real GitHub push and
@@ -551,7 +551,7 @@ live GitHub Pages environment — cannot be automated locally.
 
 - **Per task commit:** `pnpm build` (confirms scaffold compiles)
 - **Per wave merge:** `pnpm build && pnpm preview` (confirms local serve works)
-- **Phase gate:** Live URL `https://neoasaad.github.io` loads with no console errors before
+- **Phase gate:** Live URL `https://asaad101.sa` loads with no console errors before
   `/gsd-verify-work` is called
 
 ### Wave 0 Gaps
@@ -559,7 +559,7 @@ live GitHub Pages environment — cannot be automated locally.
 - [ ] `package.json` — created by `pnpm create astro@latest`; does not exist yet
 - [ ] `astro.config.mjs` — must be created with correct `site` and `fonts` config
 - [ ] `.github/workflows/deploy.yml` — does not exist yet
-- [ ] `git remote add origin git@github.com:neoasaad/neoasaad.github.io.git` — not configured
+- [ ] `git remote add origin git@github.com:asaadco/asaadco.github.io.git` — not configured
 - [ ] GitHub repo Settings → Pages → "GitHub Actions" source — manual step required before first deploy
 
 ---
@@ -570,7 +570,7 @@ live GitHub Pages environment — cannot be automated locally.
 |---|-------|---------|---------------|
 | A1 | Fontsource catalog names "Inter" and "Playfair Display" exactly match the `name` field required by `fontProviders.fontsource()` | Standard Stack / Code Examples | Build warning or silent font fallback; fix is to look up exact name on fontsource.org |
 | A2 | Adding `concurrency` block to prevent overlapping deploys is best practice | Common Pitfalls #2 | Without it, rapid pushes could cause overlapping deploys — low risk for solo dev project |
-| A3 | The project will be pushed to `neoasaad/neoasaad.github.io` repo (user page) | Conflict Resolution | If a different repo is used, the `base` config decision changes completely |
+| A3 | The project will be pushed to `asaadco/asaadco.github.io` repo (user page) | Conflict Resolution | If a different repo is used, the `base` config decision changes completely |
 
 ---
 
@@ -578,9 +578,9 @@ live GitHub Pages environment — cannot be automated locally.
 
 1. **GitHub remote not yet configured**
    - What we know: `git remote -v` returns empty; no remote has been added yet
-   - What's unclear: Whether Asaad wants to push to `neoasaad/neoasaad.github.io` (confirmed exists)
+   - What's unclear: Whether Asaad wants to push to `asaadco/asaadco.github.io` (confirmed exists)
      or create a new repo — the existing `neoasaad.github.io` repo may already have content
-   - Recommendation: Check if `neoasaad/neoasaad.github.io` has existing content on the `main`
+   - Recommendation: Check if `asaadco/asaadco.github.io` has existing content on the `main`
      branch. If yes, confirm with Asaad before force-pushing. If empty, proceed directly.
 
 2. **Astro scaffold: create fresh vs manual setup**
@@ -601,7 +601,7 @@ live GitHub Pages environment — cannot be automated locally.
 - `https://docs.astro.build/en/guides/fonts/` — Font API with fontsource() provider, Font component usage
 - `https://github.com/withastro/action` — withastro/action@v6.1.1 (released 2026-04-20), pnpm auto-detection confirmed
 - `npm view astro version` — confirmed 6.1.10 is current as of 2026-04-29
-- `curl https://api.github.com/repos/neoasaad/neoasaad.github.io` — user page repo confirmed exists
+- `curl https://api.github.com/repos/asaadco/asaadco.github.io` — user page repo confirmed exists
 - `curl https://api.github.com/repos/neoasaad/Asaad_Webpage` — project page repo confirmed does NOT exist
 
 ### Secondary (MEDIUM confidence)

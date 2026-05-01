@@ -63,7 +63,7 @@ Created `.github/workflows/deploy.yml` — the canonical Astro 6 + GitHub Pages 
 
 - **Triggers** on every push to `main` and supports manual re-runs via `workflow_dispatch`
 - **Build job**: Checks out the repo and uses `withastro/action@v6` with `package-manager: pnpm@latest` to install dependencies (with pnpm store caching), run `pnpm build`, and upload the `dist/` directory as a GitHub Pages artifact
-- **Deploy job**: Waits for build to complete (`needs: build`), then uses `actions/deploy-pages@v5` to publish the artifact to the `github-pages` environment, making it live at `https://neoasaad.github.io`
+- **Deploy job**: Waits for build to complete (`needs: build`), then uses `actions/deploy-pages@v5` to publish the artifact to the `github-pages` environment, making it live at `https://asaad101.sa`
 - **Concurrency**: Groups runs by `${{ github.workflow }}-${{ github.ref }}` and cancels in-progress runs to prevent overlapping deploys
 - **Permissions**: Declares the three mandatory permissions for `actions/deploy-pages@v5` — `contents: read`, `pages: write`, `id-token: write`
 

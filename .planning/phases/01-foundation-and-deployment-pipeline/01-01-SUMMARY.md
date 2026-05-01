@@ -42,7 +42,7 @@ key_files:
 decisions:
   - "Used rsync fallback: pnpm create astro created ./majestic-matter because cwd was non-empty; rsync'd to root then removed subdir"
   - "Astro 6.2.1 installed (research documented 6.1.10 as current; 6.2.1 is the npm latest at execution time — acceptable, same major)"
-  - "No base property in astro.config.mjs — confirmed user page repo (neoasaad/neoasaad.github.io), root URL deployment"
+  - "No base property in astro.config.mjs — confirmed user page repo (asaadco/asaadco.github.io), root URL deployment"
   - "fontProviders.fontsource() used for both fonts — no @fontsource/* packages installed manually"
 metrics:
   duration: "3m 26s"
@@ -61,7 +61,7 @@ A complete Astro 6 project foundation with:
 - **`package.json`** — Astro 6.2.1 dependency with `dev`/`build`/`preview` scripts
 - **`pnpm-lock.yaml`** — 2971-line lockfile committed for deterministic CI installs
 - **`tsconfig.json`** — extends `astro/tsconfigs/strict` (from scaffold)
-- **`astro.config.mjs`** — `site: "https://neoasaad.github.io"`, `output: "static"`, NO `base`, both fonts configured
+- **`astro.config.mjs`** — `site: "https://asaad101.sa"`, `output: "static"`, NO `base`, both fonts configured
 - **`src/layouts/Layout.astro`** — HTML shell importing `Font` from `astro:assets`, both cssVariables in `<head>`, global.css imported
 - **`src/pages/index.astro`** — placeholder page with "Site coming soon." text, wraps Layout
 - **`src/styles/global.css`** — typography token shell: `--font-body`/`--font-display` aliasing Font API variables

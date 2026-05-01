@@ -63,7 +63,9 @@ Single-page scroll. Sections in order:
 
 ## Key Configuration Notes
 
-- `astro.config.mjs` must set `site: 'https://neoasaad.github.io'` — no `base` needed (user page repo)
+- `astro.config.mjs` must set `site: 'https://asaad101.sa'` — custom domain, no `base` needed
+- `public/CNAME` must contain `asaad101.sa` so GitHub Pages serves on the custom domain
+- GitHub repo: `asaadco/asaadco.github.io` (user page repo, username: asaadco)
 - GitHub Pages source must be set to **GitHub Actions** in repo settings (not `gh-pages` branch)
 - Internal `href` attributes do NOT need a base path prefix (root deployment)
 

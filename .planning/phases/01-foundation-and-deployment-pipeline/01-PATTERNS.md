@@ -45,7 +45,7 @@ The planner must treat the RESEARCH.md code examples as the authoritative patter
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
-  site: "https://neoasaad.github.io",
+  site: "https://asaad101.sa",
   output: "static",
   fonts: [
     {
@@ -67,9 +67,9 @@ export default defineConfig({
 ```
 
 **Critical constraints (from CLAUDE.md — non-negotiable):**
-- `site` must be `"https://neoasaad.github.io"` — exact value, no trailing slash
+- `site` must be `"https://asaad101.sa"` — exact value, no trailing slash
 - `output` must be `"static"` — GitHub Pages is static hosting only
-- NO `base` property — this is a user page repo (`neoasaad/neoasaad.github.io`), not a project page repo
+- NO `base` property — this is a user page repo (`asaadco/asaadco.github.io`), not a project page repo
 - Do NOT install `@fontsource/inter` or `@fontsource/playfair-display` as packages — `fontProviders.fontsource()` fetches and bundles them automatically at build time
 - Font `name` values must match Fontsource catalog names exactly: `"Inter"` and `"Playfair Display"`
 
@@ -77,8 +77,8 @@ export default defineConfig({
 ```javascript
 // WRONG — do not add base; breaks all asset paths on user page repo
 export default defineConfig({
-  site: "https://neoasaad.github.io",
-  base: "/Asaad_Webpage",  // ← NEVER add this for neoasaad/neoasaad.github.io
+  site: "https://asaad101.sa",
+  base: "/Asaad_Webpage",  // ← NEVER add this for asaadco/asaadco.github.io
 });
 ```
 
@@ -260,7 +260,7 @@ Before the first push, go to: GitHub repo → Settings → Pages → Build and d
 **Source:** CLAUDE.md Key Configuration Notes + RESEARCH.md Conflict Resolution
 **Apply to:** Every file that contains internal href, src, or import paths
 
-No file in this project should ever include `/Asaad_Webpage` in an internal path. The site deploys to the root (`https://neoasaad.github.io`). Write internal paths as:
+No file in this project should ever include `/Asaad_Webpage` in an internal path. The site deploys to the root (`https://asaad101.sa`). Write internal paths as:
 - `/` for home
 - `/about` (future)
 - `/_astro/...` (Astro-generated, automatic)

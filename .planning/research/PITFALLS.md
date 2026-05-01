@@ -20,7 +20,7 @@
 ```js
 // astro.config.mjs
 export default defineConfig({
-  site: 'https://neoasaad.github.io',
+  site: 'https://asaad101.sa',
   base: '/Asaad_Webpage',  // exact repo name, case-sensitive
 });
 ```

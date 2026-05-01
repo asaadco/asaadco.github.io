@@ -212,7 +212,7 @@ Based on the dependency graph in ARCHITECTURE.md and the phase-specific warnings
 
 ### Gaps to Address
 
-- **Exact repo URL and GitHub username for site config:** The config requires site: https://neoasaad.github.io and base: /Asaad_Webpage. Confirm the GitHub username and exact repo name are correct (they appear correct based on PITFALLS.md research which used neoasaad as the username).
+- **Exact repo URL and GitHub username for site config:** The config requires site: https://asaad101.sa and base: /Asaad_Webpage. Confirm the GitHub username and exact repo name are correct (they appear correct based on PITFALLS.md research which used neoasaad as the username).
 
 - **Web3Forms vs. Formspree final selection:** Both are viable. FEATURES.md recommends Web3Forms for its higher free tier (250/month vs. 50/month) and Turnstile spam protection. Formspree is the safer fallback if documentation quality matters during Phase 4. Make this call at Phase 4 setup — no research phase needed.
 
