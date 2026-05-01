@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-Phase 1: Foundation and Deployment Pipeline — Ready to Execute (3 plans)
+Phase 1: Foundation and Deployment Pipeline — In Progress (2/3 plans complete)
 
 ---
 
@@ -16,7 +16,7 @@ Phase 1: Foundation and Deployment Pipeline — Ready to Execute (3 plans)
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 1 | Foundation and Deployment Pipeline | Ready to Execute |
+| 1 | Foundation and Deployment Pipeline | In Progress |
 | 2 | Static Sections | Not Started |
 | 3 | Interactive Layer | Not Started |
 | 4 | Contact, Polish, and Launch | Not Started |
@@ -90,5 +90,5 @@ None at start.
 
 ## Session Continuity
 
-Last action: Phase 1 planned — 3 plans in 2 waves (2026-04-30)
-Next action: `/gsd-execute-phase 1`
+Last action: Wave 1 complete — 01-01 (scaffold) + 01-02 (CI workflow) merged (2026-05-01)
+Next action: Wave 2 — 01-03 (git remote, push, live deploy verification)
