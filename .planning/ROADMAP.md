@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation and Deployment Pipeline** - Proven Astro scaffold deploys to GitHub Pages live URL
+- [x] **Phase 1: Foundation and Deployment Pipeline** - Proven Astro scaffold deploys to GitHub Pages live URL
 - [ ] **Phase 2: Static Sections** - Hero, timeline, and footer visible and responsive on the live site
 - [ ] **Phase 3: Interactive Layer** - Values cards expand/collapse and sticky nav works across breakpoints
 - [ ] **Phase 4: Contact, Polish, and Launch** - Contact form submits, site passes Lighthouse audit, and ships
@@ -20,7 +20,7 @@
 
 | # | Phase | Goal | Requirements | Plans |
 |---|-------|------|--------------|-------|
-| 1 | Foundation and Deployment Pipeline | 2/3 | In Progress    | 01-01 ✓, 01-02 ✓, 01-03 ⏳ |
+| 1 | Foundation and Deployment Pipeline | 3/3 | Complete    | 01-01 ✓, 01-02 ✓, 01-03 ✓ |
 | 2 | Static Sections | Hero, professional timeline, and footer rendered on the live URL, mobile-responsive at 375px, with navigation structure in place | HERO-01, HERO-02, JOUR-01, JOUR-02, JOUR-03, SITE-04, SITE-05 | TBD |
 | 3 | Interactive Layer | Values cards expand and collapse with ARIA and keyboard support; sticky header nav operates correctly on all breakpoints | VALS-01, VALS-02, VALS-03 | TBD |
 | 4 | Contact, Polish, and Launch | Contact form accepts and submits messages, site is fully responsive and performant, and passes pre-launch audit | CONT-01, CONT-02, CONT-03, CONT-04, SITE-02, SITE-03 | TBD |
@@ -42,10 +42,10 @@
 
 > **Note (2026-04-29 plan):** Earlier drafts of criteria #3 and #4 referenced `base: /Asaad_Webpage` and the URL `https://asaad101.sa/Asaad_Webpage`. CLAUDE.md (authoritative) and the most recent commit `7cf0fe8` corrected this — the project deploys to a user page repo (`asaadco/asaadco.github.io`) at the root URL with NO `base`. Criteria above reflect the corrected, authoritative configuration.
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 - [x] 01-01-PLAN.md — Scaffold Astro 6 project with locked config (astro.config.mjs, Layout, placeholder index, global.css)
 - [x] 01-02-PLAN.md — Create GitHub Actions workflow `.github/workflows/deploy.yml` (withastro/action@v6 + deploy-pages@v5)
-- [ ] 01-03-PLAN.md — Configure git remote, push to main, enable Pages source, verify live deploy
+- [x] 01-03-PLAN.md — Configure git remote, push to main, enable Pages source, verify live deploy
 
 **UI hint**: no
 
@@ -103,7 +103,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation and Deployment Pipeline | 0/3 | Planned | - |
+| 1. Foundation and Deployment Pipeline | 3/3 | Complete | 2026-05-01 |
 | 2. Static Sections | 0/? | Not started | - |
 | 3. Interactive Layer | 0/? | Not started | - |
 | 4. Contact, Polish, and Launch | 0/? | Not started | - |
