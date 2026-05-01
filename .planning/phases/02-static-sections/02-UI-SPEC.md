@@ -1,7 +1,7 @@
 ---
 phase: 2
 slug: static-sections
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-01
@@ -42,11 +42,11 @@ Declared values (all multiples of 4):
 | xl | 32px | `--space-xl` | Between-component gaps, timeline dot spacing |
 | 2xl | 48px | `--space-2xl` | Section vertical padding (top/bottom) on mobile |
 | 3xl | 64px | `--space-3xl` | Section vertical padding (top/bottom) on desktop |
-| 4xl | 96px | `--space-4xl` | Hero vertical breathing room on desktop |
 
 Exceptions:
 - Nav height: 60px (not a multiple of 4 — chosen to satisfy 48px minimum touch target with comfortable visual padding)
 - Touch targets on interactive elements (nav links, future): 44px minimum height per WCAG 2.5.5
+- Hero section vertical padding: 96px on desktop — declared as a component-level property on `<Hero />`, not a scale token (96 = 4 × 24, valid grid multiple; 64px produces cramped hero at ≥1024px)
 
 **Source:** 8-point scale default, confirmed against CONTEXT.md spacing discretion and WCAG touch target requirements.
 
@@ -57,19 +57,19 @@ Exceptions:
 | Role | Font | Size | Weight | Line Height | CSS Variable Reference |
 |------|------|------|--------|-------------|------------------------|
 | Body | Inter Variable | 16px | 400 (regular) | 1.6 | `var(--font-body)` |
-| Label / Nav | Inter Variable | 14px | 500 (medium) | 1.4 | `var(--font-body)` |
+| Label / Nav | Inter Variable | 14px | 400 (regular) | 1.4 | `var(--font-body)` |
 | Section Heading | Playfair Display | 28px | 700 (bold) | 1.2 | `var(--font-display)` |
-| Display / Hero Name | Playfair Display | 56px desktop / 36px mobile | 700 (bold) | 1.1 | `var(--font-display)` |
+| Display / Hero Name | Playfair Display | clamp(36px, 6vw, 56px) | 700 (bold) | 1.1 | `var(--font-display)` |
 
 Notes:
 - Body line height is 1.6 (slightly above standard 1.5) — longer paragraphs in About narrative benefit from extra leading.
-- Two font weights only: 400 for body/prose, 700 for all headings and display. Nav uses 500 as an exception for legibility at small size.
-- The Hero display size steps down from 56px (desktop, ≥768px) to 36px (mobile, 375px). Use a CSS clamp or media query — `clamp(36px, 6vw, 56px)` is acceptable.
-- Tagline / professional identity under the name: 20px, weight 400, Inter Variable.
-- Timeline role title: 18px, weight 700, Inter Variable (not Playfair — keeps timeline scannable).
+- Two font weights only: 400 for all body/prose/labels, 700 for all headings, display, and role titles. No exceptions.
+- The Hero display size clamps from 36px (mobile, 375px) to 56px (desktop, ≥768px) via `clamp(36px, 6vw, 56px)`.
+- Tagline / professional identity under the name: 28px, weight 700, Playfair Display — provides adequate hierarchy below the 56px name.
+- Timeline role title: 16px, weight 700, Inter Variable — weight alone differentiates role titles from body text at the same size.
 - Timeline org / date: 14px, weight 400, Inter Variable.
 
-**Source:** CLAUDE.md typography section, CONTEXT.md (no explicit overrides on scale — Claude's discretion applied).
+**Source:** CLAUDE.md typography section, CONTEXT.md (no explicit overrides on scale — Claude's discretion applied). Revised per checker: 4 sizes only (14px, 16px, 28px, clamp display), 2 weights only (400, 700).
 
 ---
 
@@ -110,8 +110,8 @@ Accent reserved for: timeline entry dots, nav anchor link hover/active underline
 - Position: `position: sticky; top: 0; z-index: 100`
 - Height: 60px
 - Layout: flex row, space-between. Logo/name on left, anchor links on right.
-- Logo text: "Asaad" — Playfair Display, 20px, weight 700, color `--color-text`
-- Nav links: Inter Variable, 14px, weight 500, color `--color-text`, uppercase letter-spacing 0.05em
+- Logo text: "Asaad" — Inter Variable, 16px, weight 700, color `--color-text`
+- Nav links: Inter Variable, 14px, weight 400, color `--color-text`, uppercase letter-spacing 0.05em
 - Links: About (`#hero`), Journey (`#journey`), Values (`href="#"` — dead link until Phase 3), Contact (`href="#"` — dead link until Phase 4)
 - Hover state: gold underline, color transitions to `--color-accent-hover`. Transition: `color 150ms ease, border-color 150ms ease`
 - Background: `--color-surface` with `backdrop-filter: blur(8px)`. No JS scroll listener required — CSS sticky behavior handles positioning.
@@ -124,9 +124,9 @@ Accent reserved for: timeline entry dots, nav anchor link hover/active underline
 - Height: `min-height: 100vh`
 - Background: `linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-deep) 100%)`
 - Layout: flex column, centered (both axes), text-align center
-- Padding: `--space-4xl` top/bottom on desktop, `--space-3xl` on mobile. Left/right: `--space-md` minimum.
+- Padding: `96px` top/bottom on desktop (hero-only — not a scale token), `--space-3xl` (64px) on mobile. Left/right: `--space-md` minimum.
 - Name: Playfair Display, `clamp(36px, 6vw, 56px)`, weight 700, color `--color-text`, line-height 1.1
-- Professional tagline (1 sentence): Inter Variable, 20px, weight 400, color `--color-text-muted`, margin-top `--space-md`
+- Professional tagline (1 sentence): Playfair Display, 28px, weight 700, color `--color-text-muted`, margin-top `--space-md`
 - About narrative (2–3 paragraphs): Inter Variable, 16px, weight 400, line-height 1.6, color `--color-text`, max-width 640px, margin: 0 auto, margin-top `--space-xl`
 - About paragraph spacing: `--space-md` between paragraphs
 - No scroll-down indicator in Phase 2 (deferred to polish phase)
@@ -149,7 +149,7 @@ Accent reserved for: timeline entry dots, nav anchor link hover/active underline
 **Timeline entry structure:**
 - Dot: 12px circle, background `--color-accent`, border: 2px solid `--color-bg`, centered on the stem
 - Card: `--color-surface` background, border-radius 8px, padding `--space-lg`
-- Role: Inter Variable, 18px, weight 700, color `--color-text`
+- Role: Inter Variable, 16px, weight 700, color `--color-text`
 - Organization: Inter Variable, 14px, weight 400, color `--color-accent`
 - Time period: Inter Variable, 14px, weight 400, color `--color-text-muted`
 - Impact statement: Inter Variable, 16px, weight 400, line-height 1.6, color `--color-text`, margin-top `--space-sm`
@@ -220,8 +220,9 @@ The following tokens must be added to `src/styles/global.css` `:root` block in P
 --space-xl: 32px;
 --space-2xl: 48px;
 --space-3xl: 64px;
---space-4xl: 96px;
 ```
+
+Note: Hero section vertical padding (96px) is declared inline in the `<Hero />` component, not as a global token. See Hero component contract above.
 
 And add to `html` rule:
 ```css
@@ -289,17 +290,19 @@ No third-party component registries. No npm packages added beyond existing Astro
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-05-01
 
 ---
 
 *Phase: 2 — Static Sections*
 *Contract created: 2026-05-01*
+*Revised: 2026-05-01 — checker fix: reduced to 4 font sizes (14px, 16px, 28px, clamp display) and 2 weights (400, 700)*
+*Revised: 2026-05-01 — checker fix: added Spacing Exceptions entry for --space-4xl: 96px (extended-scale exception per grid math)*
 *Source of decisions: CONTEXT.md (D-01 through D-15), CLAUDE.md (binding), REQUIREMENTS.md (HERO-01, HERO-02, JOUR-01–03, SITE-04, SITE-05)*
