@@ -21,7 +21,7 @@
 | # | Phase | Goal | Requirements | Plans |
 |---|-------|------|--------------|-------|
 | 1 | Foundation and Deployment Pipeline | 3/3 | Complete    | 01-01 ✓, 01-02 ✓, 01-03 ✓ |
-| 2 | Static Sections | Hero, professional timeline, and footer rendered on the live URL, mobile-responsive at 375px, with navigation structure in place | HERO-01, HERO-02, JOUR-01, JOUR-02, JOUR-03, SITE-04, SITE-05 | TBD |
+| 2 | Static Sections | Hero, professional timeline, and footer rendered on the live URL, mobile-responsive at 375px, with navigation structure in place | HERO-01, HERO-02, JOUR-01, JOUR-02, JOUR-03, SITE-04, SITE-05 | 02-01, 02-02, 02-03, 02-04, 02-05 |
 | 3 | Interactive Layer | Values cards expand and collapse with ARIA and keyboard support; sticky header nav operates correctly on all breakpoints | VALS-01, VALS-02, VALS-03 | TBD |
 | 4 | Contact, Polish, and Launch | Contact form accepts and submits messages, site is fully responsive and performant, and passes pre-launch audit | CONT-01, CONT-02, CONT-03, CONT-04, SITE-02, SITE-03 | TBD |
 
@@ -62,7 +62,12 @@
   3. Sticky navigation header is visible at the top of the viewport as the visitor scrolls, with anchor links to each section
   4. Smooth scrolling navigates to the correct section when a nav anchor is clicked
   5. All sections in this phase render correctly at 375px viewport width with no horizontal overflow
-**Plans:** TBD
+**Plans:** 5 plans
+- [ ] 02-01-PLAN.md — Extend global.css with Phase 2 color/spacing tokens and scroll behavior (Wave 1)
+- [ ] 02-02-PLAN.md — Create Nav.astro sticky header with 4 anchor links and accessibility-safe dead links (Wave 2)
+- [ ] 02-03-PLAN.md — Create Hero.astro (full-viewport, name + tagline + About) and Footer.astro (copyright-only) (Wave 2)
+- [ ] 02-04-PLAN.md — Create Journey.astro CSS Grid center-stem timeline with 6 entries, responsive (Wave 2)
+- [ ] 02-05-PLAN.md — Wire Layout.astro (Nav/Footer/main) and rewrite index.astro to compose Hero+Journey, with human-verify at 375px and 1024px (Wave 3)
 **UI hint**: yes
 
 ---
@@ -104,7 +109,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation and Deployment Pipeline | 3/3 | Complete | 2026-05-01 |
-| 2. Static Sections | 0/? | Not started | - |
+| 2. Static Sections | 0/5 | Not started | - |
 | 3. Interactive Layer | 0/? | Not started | - |
 | 4. Contact, Polish, and Launch | 0/? | Not started | - |
 
