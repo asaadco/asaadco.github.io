@@ -1,0 +1,81 @@
+---
+// src/components/Hero.astro
+// Phase 2: Full-viewport hero section. Static — no client:* directives.
+// Implements: HERO-01 (name + tagline), HERO-02 (About narrative folded in per D-04).
+// Anchor target: #hero (referenced by Nav "About" link).
+---
+<section id="hero">
+  <div class="hero-inner">
+    <h1>Asaad</h1>
+    <p class="hero-tagline">Data &amp; AI professional, inspirational speaker, and technical career coach.</p>
+    <div class="hero-about">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    min-height: 100vh;
+    background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-deep) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl) var(--space-md);
+    color: var(--color-text);
+  }
+
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--color-text);
+  }
+
+  .hero-tagline {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-text-muted);
+    margin-top: var(--space-md);
+  }
+
+  .hero-about {
+    margin-top: var(--space-xl);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .hero-about p {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+
+  .hero-about p + p {
+    margin-top: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    section {
+      padding: 96px var(--space-xl);
+    }
+  }
+</style>
