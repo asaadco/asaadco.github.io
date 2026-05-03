@@ -1,0 +1,229 @@
+---
+// src/components/Journey.astro
+// Phase 2: career timeline section. Static — no client:* directives.
+// Implements: JOUR-01 (chronological timeline), JOUR-02 (role/org/date/impact), JOUR-03 (responsive).
+// Anchor target: #journey (referenced by Nav "Journey" link).
+
+interface JourneyEntry {
+  role: string;
+  org: string;
+  date: string;
+  impact: string;
+}
+
+const entries: JourneyEntry[] = [
+  {
+    role: "Junior Data Analyst",
+    org: "Example Corp",
+    date: "2014–2016",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  {
+    role: "Data Analyst",
+    org: "Data Co",
+    date: "2016–2018",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  {
+    role: "Senior Data Scientist",
+    org: "AI Lab",
+    date: "2018–2020",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  {
+    role: "Lead AI Engineer",
+    org: "Tech Group",
+    date: "2020–2022",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  {
+    role: "Principal Data Scientist",
+    org: "Innovate Inc",
+    date: "2022–2024",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  {
+    role: "Director of AI",
+    org: "Frontier AI",
+    date: "2024–Present",
+    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+];
+---
+<section id="journey">
+  <div class="inner">
+    <h2>Journey</h2>
+    <div class="heading-accent" aria-hidden="true"></div>
+    <ol class="timeline">
+      {entries.map((entry) => (
+        <li class="timeline-entry">
+          <span class="timeline-dot" aria-hidden="true"></span>
+          <div class="timeline-card">
+            <p class="entry-role">{entry.role}</p>
+            <p class="entry-org">{entry.org}</p>
+            <p class="entry-date">{entry.date}</p>
+            <p class="entry-impact">{entry.impact}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  section {
+    background-color: var(--color-bg);
+    padding: var(--space-2xl) var(--space-md);
+    color: var(--color-text);
+  }
+
+  .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  .heading-accent {
+    width: 40px;
+    height: 2px;
+    background-color: var(--color-accent);
+    margin: var(--space-xs) auto var(--space-2xl);
+  }
+
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    column-gap: var(--space-md);
+    row-gap: var(--space-xl);
+  }
+
+  /* Stem line — left-edge vertical line on mobile */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 7px;
+    width: 2px;
+    background-color: var(--color-surface);
+  }
+
+  .timeline-entry {
+    position: relative;
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    top: var(--space-lg);
+    left: -17px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    border: 2px solid var(--color-bg);
+    box-sizing: content-box;
+  }
+
+  .timeline-card {
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    padding: var(--space-lg);
+    width: 100%;
+  }
+
+  .entry-role {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+
+  .entry-org {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-accent);
+    margin-top: var(--space-xs);
+  }
+
+  .entry-date {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+  }
+
+  .entry-impact {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-text);
+    margin-top: var(--space-sm);
+  }
+
+  /* Desktop: center-stem alternating layout (>=768px) */
+  @media (min-width: 768px) {
+    section {
+      padding: var(--space-3xl) var(--space-xl);
+    }
+
+    .timeline {
+      grid-template-columns: 1fr 2px 1fr;
+      column-gap: var(--space-xl);
+      row-gap: var(--space-2xl);
+    }
+
+    .timeline::before {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .timeline-entry {
+      grid-column: 1;
+      justify-self: end;
+      align-items: flex-end;
+    }
+
+    .timeline-entry:nth-child(even) {
+      grid-column: 3;
+      justify-self: start;
+      align-items: flex-start;
+    }
+
+    .timeline-card {
+      max-width: 440px;
+    }
+
+    /* Dot positioned on the center stem */
+    .timeline-entry .timeline-dot {
+      top: var(--space-lg);
+      left: auto;
+      right: calc(-1 * var(--space-xl) - 6px);
+    }
+
+    .timeline-entry:nth-child(even) .timeline-dot {
+      left: calc(-1 * var(--space-xl) - 6px);
+      right: auto;
+    }
+  }
+</style>
