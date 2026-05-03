@@ -1,7 +1,10 @@
 ---
 // src/layouts/Layout.astro
-// Source: https://docs.astro.build/en/guides/fonts/
+// Phase 2: extended with Nav (above slot) and Footer (below slot). <main> wraps <slot />.
+// Source: https://docs.astro.build/en/basics/layouts.mdx
 import { Font } from "astro:assets";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -20,6 +23,10 @@ const { title = "Asaad" } = Astro.props;
     <Font cssVariable="--font-playfair" />
   </head>
   <body>
-    <slot />
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>

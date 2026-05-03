@@ -1,11 +1,12 @@
 ---
 // src/pages/index.astro
-// Phase 1 placeholder — proves deployment works before UI is built (Phase 2 replaces this)
+// Phase 2: composes Hero and Journey inside Layout. Replaces the Phase 1 placeholder.
+// Nav and Footer are rendered by Layout — do not import here.
 import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Journey from "../components/Journey.astro";
 ---
-<Layout title="Asaad — Coming Soon">
-  <main>
-    <h1>Site coming soon.</h1>
-    <p>Deployment pipeline is live.</p>
-  </main>
+<Layout title="Asaad — Data & AI Professional">
+  <Hero />
+  <Journey />
 </Layout>
