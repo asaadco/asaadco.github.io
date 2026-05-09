@@ -1,0 +1,165 @@
+---
+// src/components/TechStrip.astro
+// Infinitely scrolling platform / skill icon strip.
+// Icons via Simple Icons CDN (white, no external JS).
+// Text chips for platforms not yet in Simple Icons.
+
+interface Tech {
+  name: string;
+  slug?: string;   // Simple Icons slug → CDN image
+  abbr?: string;   // Fallback monogram if no slug
+  color: string;   // accent color for the text-chip border/dot
+}
+
+const techs: Tech[] = [
+  { name: "Python",           slug: "python",         color: "#3776AB" },
+  { name: "Microsoft Azure",  slug: "icloud",          color: "#0078D4" },
+  { name: "Javascript",       slug: "javascript",     color: "#74aa9c" },
+  { name: "Docker",           slug: "docker",         color: "#2496ED" },
+  { name: "Jira",             slug: "jira",           color: "#1C3C3C" },
+  { name: "Palantir",         slug: "palantir",       color: "#A0A0A0" },
+  { name: "Hugging Face",     slug: "huggingface",    color: "#FFD21E" },
+  { name: "Ollama",           slug: "ollama",         color: "#E0E0E0" },
+  { name: "LangGraph",        slug: "langgraph",      color: "#1C7A6B" },
+];
+
+// Duplicate list for seamless infinite loop
+const doubled = [...techs, ...techs];
+---
+
+<section class="tech-strip" aria-label="Technology stack">
+  <!-- Fade masks applied via CSS mask on the wrapper -->
+  <div class="strip-mask">
+    <div class="strip-track">
+      {doubled.map((tech, i) => (
+        <div
+          class="tech-item"
+          aria-hidden={i >= techs.length ? "true" : undefined}
+        >
+          {tech.slug ? (
+            <img
+              src={`https://cdn.simpleicons.org/${tech.slug}/ffffff`}
+              alt={tech.name}
+              width="22"
+              height="22"
+              class="tech-icon"
+              loading="lazy"
+            />
+          ) : (
+            <span
+              class="tech-abbr"
+              style={`color:${tech.color}; border-color:${tech.color}30;`}
+            >
+              {tech.abbr}
+            </span>
+          )}
+          <span class="tech-name">{tech.name}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-lg) 0;
+    overflow: hidden;
+  }
+
+  /* Left + right fade */
+  .strip-mask {
+    --fade: 120px;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--fade),
+      black calc(100% - var(--fade)),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--fade),
+      black calc(100% - var(--fade)),
+      transparent 100%
+    );
+  }
+
+  /* Scrolling track: two identical lists end-to-end */
+  .strip-track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xl);
+    width: max-content;
+    animation: marquee 35s linear infinite;
+    will-change: transform;
+  }
+
+  /* Pause on hover so the user can read */
+  .strip-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }  /* exactly one list-width */
+  }
+
+  /* Individual platform item */
+  .tech-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    opacity: 0.75;
+    transition: opacity 0.2s ease;
+  }
+
+  .tech-item:hover {
+    opacity: 1;
+  }
+
+  /* Logo image */
+  .tech-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: brightness(0.9);
+    flex-shrink: 0;
+  }
+
+  /* Text monogram chip (fallback for platforms without Simple Icons entry) */
+  .tech-abbr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* Platform name */
+  .tech-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip-track {
+      animation: none;
+    }
+  }
+</style>

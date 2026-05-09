@@ -1,31 +1,43 @@
-/* src/styles/global.css — Phase 2: design tokens extended */
+/* src/styles/global.css — Data Modernist design system */
 :root {
-  /* Typography — bridge Astro Font API variables to project-level aliases */
-  --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-playfair), Georgia, serif;
+  /* Typography — bridges from Astro Font API to project aliases */
+  --font-heading: var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif;
+  --font-body:    var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', 'Courier New', monospace;
 
-  /* === Phase 2: Colors === */
-  --color-bg: #0d1b2a;
-  --color-bg-deep: #070d14;
-  --color-surface: #1a2a3a;
-  --color-text: #f5f5f5;
-  --color-text-muted: #9baab8;
-  --color-accent: #d4a017;
-  --color-accent-hover: #e8b520;
+  /* === Colors === */
+  --color-bg:         #0D1B2A;
+  --color-surface:    #1B2838;
+  --color-border:     #243447;
+  --color-track:      #2E4057;
+  --color-text:       #F5F7FA;
+  --color-text-muted: #8892A4;
+  --color-blue:       #1E90FF;
+  --color-blue-glow:  rgba(30, 144, 255, 0.12);
+  --color-blue-dim:   rgba(30, 144, 255, 0.05);
+  --color-amber:      #F4A261;
+  --color-green:      #4ADE80;
+  --color-purple:     #C084FC;
 
-  /* === Phase 2: Spacing (8-point scale) === */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
+  /* === Spacing (8-point scale) === */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
   --space-2xl: 48px;
   --space-3xl: 64px;
+
+  /* === Border radius (max 16px per spec) === */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* === Motion === */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -35,6 +47,14 @@ html {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   scroll-behavior: smooth;
-  scroll-padding-top: 60px;
+  scroll-padding-top: 64px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
 }

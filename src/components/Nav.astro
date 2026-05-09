@@ -1,45 +1,63 @@
 ---
 // src/components/Nav.astro
-// Phase 2: sticky primary navigation header. Static — no client:* directives.
-// Implements: SITE-05 (sticky nav), CONTEXT D-07/D-08/D-09, UI-SPEC Nav contract.
+// Data Modernist sticky nav: 64px, electric-blue first letter logo,
+// links with center-expanding underline on hover.
 ---
 <nav aria-label="Primary navigation">
-  <a class="nav-logo" href="/">Asaad</a>
+  <a class="nav-logo" href="/">
+    <span class="logo-first">Asaad</span> Alghamdi
+  </a>
   <ul class="nav-links">
     <li><a href="#hero">About</a></li>
     <li><a href="#journey">Journey</a></li>
-    <li><a href="#" aria-disabled="true" tabindex="-1" title="Coming soon">Values</a></li>
-    <li><a href="#" aria-disabled="true" tabindex="-1" title="Coming soon">Contact</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
 
 <style>
   nav {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
-    height: 60px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--space-xl);
-    background-color: var(--color-surface);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(13, 27, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+    /* Hidden above viewport until hero scrolls out */
+    transform: translateY(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  nav.nav--visible {
+    transform: translateY(0);
   }
 
   .nav-logo {
-    font-family: var(--font-body);
-    font-size: 16px;
+    font-family: var(--font-heading);
+    font-size: 18px;
     font-weight: 700;
     color: var(--color-text);
     text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-first {
+    color: var(--color-blue);
   }
 
   .nav-links {
     list-style: none;
     display: flex;
-    gap: var(--space-sm);
+    gap: 0;
     margin: 0;
     padding: 0;
   }
@@ -49,53 +67,60 @@
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 400;
-    color: var(--color-text);
+    color: var(--color-text-muted);
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     padding: var(--space-sm) var(--space-md);
-    transition: color 150ms ease;
+    transition: color 0.25s var(--ease);
     position: relative;
   }
 
-  .nav-links a:hover:not([aria-disabled="true"]) {
-    color: var(--color-accent-hover);
-  }
-
+  /* Center-expanding underline */
   .nav-links a::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: 4px;
+    left: 50%;
+    right: 50%;
+    height: 2px;
+    background-color: var(--color-blue);
+    transition: left 0.25s var(--ease), right 0.25s var(--ease);
+  }
+
+  .nav-links a:hover {
+    color: var(--color-text);
+  }
+
+  .nav-links a:hover::after {
     left: var(--space-md);
     right: var(--space-md);
-    height: 2px;
-    background-color: var(--color-accent);
-    transform: scaleX(0);
-    transition: transform 150ms ease;
   }
 
-  .nav-links a:hover:not([aria-disabled="true"])::after {
-    transform: scaleX(1);
-  }
-
-  .nav-links a[aria-disabled="true"] {
-    opacity: 0.5;
-    cursor: default;
-    pointer-events: none;
-  }
-
-  /* Mobile: reduce padding/letter-spacing/font-size at 375px to prevent horizontal overflow (Pitfall 6) */
   @media (max-width: 767px) {
     nav {
       padding: 0 var(--space-md);
     }
-    .nav-links {
-      gap: var(--space-xs);
-    }
     .nav-links a {
       padding: var(--space-xs) var(--space-sm);
       font-size: 12px;
-      letter-spacing: 0.03em;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .nav-links li:nth-child(n+4) {
+      display: none;
     }
   }
 </style>
+
+<script>
+  const nav  = document.querySelector('nav')!;
+  const hero = document.querySelector('#hero');
+
+  if (hero) {
+    const observer = new IntersectionObserver(
+      ([entry]) => nav.classList.toggle('nav--visible', !entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(hero);
+  }
+</script>

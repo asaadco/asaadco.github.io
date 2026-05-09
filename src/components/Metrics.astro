@@ -1,0 +1,118 @@
+---
+// src/components/Metrics.astro
+// Data Modernist impact metrics bar: 5 columns, JetBrains Mono 48px numbers,
+// count-up animation on scroll visibility via IntersectionObserver.
+const metrics = [
+  { value: 50, unit: "B+", label: "In Enterprise Value Supported" },
+  { value: 10, unit: "+", label: "Solutions in Production" },
+  { value: 10, unit: "+", label: "Industry Certifications" },
+  { value: 5, unit: "+", label: "Data & AI Professionals Mentored" },
+];
+---
+<section id="metrics" aria-label="Impact metrics">
+  <div class="inner">
+    {metrics.map((m) => (
+      <div class="metric-item">
+        <div class="metric-number">
+          <span class="count-up" data-target={m.value}>{m.value}</span>
+          <span class="metric-unit">{m.unit}</span>
+        </div>
+        <p class="metric-label">{m.label}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  const counters = document.querySelectorAll<HTMLElement>('.count-up');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target as HTMLElement;
+      const target = parseInt(el.dataset.target ?? '0', 10);
+      const duration = 1600;
+      let startTime: number | null = null;
+
+      const step = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target).toString();
+        if (progress < 1) requestAnimationFrame(step);
+      };
+
+      requestAnimationFrame(step);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+
+  counters.forEach(el => observer.observe(el));
+</script>
+
+<style>
+  section {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-2xl) var(--space-xl);
+  }
+
+  .inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-xl);
+  }
+
+  .metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .metric-number {
+    font-family: var(--font-mono);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  .metric-unit {
+    font-size: 0.55em;
+    color: var(--color-blue);
+    font-weight: 700;
+  }
+
+  .metric-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 900px) {
+    .inner {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    section {
+      padding: var(--space-2xl) var(--space-md);
+    }
+    .inner {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+  }
+</style>

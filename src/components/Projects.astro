@@ -1,0 +1,213 @@
+---
+// src/components/Projects.astro
+interface Project {
+  title: string;
+  icon: string;
+  gradient: string;
+  label: string;
+  description: string;
+  tags: string[];
+}
+
+const projects: Project[] = [
+  {
+    title: "AI Mailbox",
+    icon: "◈",
+    gradient: "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(30,144,255,0.04) 100%)",
+    label: "Production · 4 Executives",
+    description:
+      "Embedded agent that monitors executive mailboxes, captures action items, and delivers daily summaries of ongoing conversations and required follow-ups. Recovers ~2 hours of executive attention per person per day and ensures critical communications and decision points don't slip.",
+    tags: ["Agentic AI", "LLMs", "Email Automation", "Executive Tools", "Python"],
+  },
+  {
+    title: "PO Deep Mining",
+    icon: "⟁",
+    gradient: "linear-gradient(135deg, rgba(244,162,97,0.18) 0%, rgba(244,162,97,0.04) 100%)",
+    label: "SAP Ariba · +100K Potential Records Unlocked",
+    description:
+      "Qwen3 agentic pipeline that reasons over procurement order attachments in SAP Ariba, extracting scope of work, stakeholders, and timelines. Processes 100–200 new POs per month and surfaces redundant scope, risk flags, and decision-ready data on every record.",
+    tags: ["Qwen3", "Agentic AI", "SAP Ariba", "Document Intelligence", "Python"],
+  },
+  {
+    title: "Risk360",
+    icon: "◉",
+    gradient: "linear-gradient(135deg, rgba(251,113,133,0.18) 0%, rgba(251,113,133,0.04) 100%)",
+    label: "Palantir Foundry · ~$50B Project Value",
+    description:
+      "Agentic risk analysis over project proposals — reasons against a structured risk library to flag local content risk, illogical assumptions, and proposal gaps, then generates an executive summary. Covers ~200 proposals per year representing approximately $50B in project value.",
+    tags: ["Agentic AI", "Risk Analysis", "Palantir Foundry", "LLMs", "Python"],
+  },
+  {
+    title: "Engagement360 Report",
+    icon: "▦",
+    gradient: "linear-gradient(135deg, rgba(74,222,128,0.18) 0%, rgba(74,222,128,0.04) 100%)",
+    label: "Palantir Foundry · 3 Days → Minutes",
+    description:
+      "Generates enriched reports with charts of all engagements between a business unit and its suppliers, or between a supplier and all business units. Used bi-weekly by executive teams — compresses a 3-day manual analyst workflow into minutes.",
+    tags: ["Palantir Foundry", "Analytics", "Executive Reporting", "Python"],
+  },
+  {
+    title: "MongoChat",
+    icon: "⬡",
+    gradient: "linear-gradient(135deg, rgba(192,132,252,0.18) 0%, rgba(192,132,252,0.04) 100%)",
+    label: "Proof of Concept · Self-serve Analytics",
+    description:
+      "Natural-language interface that converts plain English questions into safe, explainable MongoDB queries (MQL). Demonstrates a self-serve analytics path that, at scale, would deflect a substantial share of ad-hoc data-engineering requests directly to business users.",
+    tags: ["LangGraph", "FastAPI", "MongoDB", "Streamlit", "NLP"],
+  },
+  {
+    title: "Groq on Foundry",
+    icon: "◎",
+    gradient: "linear-gradient(135deg, rgba(34,211,238,0.18) 0%, rgba(34,211,238,0.04) 100%)",
+    label: "Palantir Foundry · Minutes → Seconds",
+    description:
+      "Built the Groq API integration into Palantir Foundry, exposing sub-second LLM inference to downstream agentic systems. Reduced LLM response latency from minutes to seconds — now the inference layer underneath Risk360 and Engagement360.",
+    tags: ["Groq", "Palantir Foundry", "LLM Inference", "API Integration", "Python"],
+  },
+];
+---
+<section id="projects">
+  <div class="inner">
+    <header class="section-header">
+      <span class="section-tag">Work</span>
+      <h2>Featured Projects</h2>
+      <p class="section-sub">Production systems and research initiatives that shipped and drove measurable, real-world impact.</p>
+    </header>
+
+    <div class="project-grid">
+      {projects.map(proj => (
+        <article class="project-card">
+          <div class="card-visual" style={`background: ${proj.gradient};`}>
+            <span class="card-icon" aria-hidden="true">{proj.icon}</span>
+          </div>
+
+          <div class="card-body">
+            <div class="proj-meta">
+              <span class="proj-label">{proj.label}</span>
+            </div>
+            <h3 class="proj-title">{proj.title}</h3>
+            <p class="proj-desc">{proj.description}</p>
+            <div class="tag-list">
+              {proj.tags.map(tag => (
+                <span class="proj-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    background-color: var(--color-surface);
+    padding: var(--space-3xl) var(--space-xl);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .inner { max-width: 1200px; margin: 0 auto; }
+
+  .section-header { text-align: center; margin-bottom: var(--space-3xl); }
+
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-green);
+    margin-bottom: var(--space-sm);
+  }
+
+  h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-sub { font-size: 15px; color: var(--color-text-muted); }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .project-card {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+  }
+
+  .project-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 32px rgba(30, 144, 255, 0.15);
+    border-color: rgba(30, 144, 255, 0.35);
+  }
+
+  .card-visual {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .card-icon { font-size: 40px; opacity: 0.7; color: var(--color-text-muted); }
+
+  .card-body { padding: var(--space-lg); }
+
+  .proj-meta { margin-bottom: var(--space-xs); }
+
+  .proj-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-blue);
+    opacity: 0.8;
+  }
+
+  .proj-title {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+    letter-spacing: -0.01em;
+  }
+
+  .proj-desc {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+
+  .proj-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-muted);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  @media (max-width: 900px) {
+    .project-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    section { padding: var(--space-3xl) var(--space-md); }
+    .project-grid { grid-template-columns: 1fr; }
+  }
+</style>

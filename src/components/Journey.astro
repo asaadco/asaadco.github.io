@@ -1,69 +1,119 @@
 ---
-// src/components/Journey.astro
-// Phase 2: career timeline section. Static — no client:* directives.
-// Implements: JOUR-01 (chronological timeline), JOUR-02 (role/org/date/impact), JOUR-03 (responsive).
-// Anchor target: #journey (referenced by Nav "Journey" link).
-
-interface JourneyEntry {
+// src/components/Journey.astro — populated from Asaad Alghamdi's resume.
+interface Entry {
   role: string;
   org: string;
   date: string;
   impact: string;
+  bullets: string[];
 }
 
-const entries: JourneyEntry[] = [
-  {
-    role: "Junior Data Analyst",
-    org: "Example Corp",
-    date: "2014–2016",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+const entries: Entry[] = [
+    {
+    role: "Data & AI Lead",
+    org: "Deputy CEO Office, NEOM",
+    date: "Aug 2024 – Apr 2026",
+    impact: "Owned and Built executive-grade AI systems and cloud-native data platforms for NEOM's highest-stakes decisions, while leading engineers across the full AI delivery lifecycle.",
+    bullets: [
+      "Built and maintained executive decision support systems such as automating risk & compliance for high-value projects with 360° analysis",
+      "Engineered and Deployed Data & AI pipelines on Microsoft Fabric",
+      "Led engineers as a hands-on technical mentor, setting standards and agile delivery timelines",
+    ],
   },
   {
-    role: "Data Analyst",
-    org: "Data Co",
-    date: "2016–2018",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    role: "Data & AI Product Lead",
+    org: "Tech & Digital, NEOM",
+    date: "Jul 2022 – Aug 2024",
+    impact: "Spearheaded NEOM's foundational Arabic LLM — recognised as Saudi Arabia's national champion — and represented NEOM at national events to VVIPs and audiences of 500+.",
+    bullets: [
+      "Led development of NEOM's Arabic LLM, AraMUS, achieving national champion benchmark performance",
+      "Published AraMUS at ACL 2023, a top-tier international NLP conference",
+      "Delivered public speeches to 500+ attendees at KAUST, LEAP, and GITEX, representing NEOM's AI vision and capabilities",
+    ],
   },
-  {
-    role: "Senior Data Scientist",
-    org: "AI Lab",
-    date: "2018–2020",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    {
+    role: "M.Sc. Computer Science",
+    org: "King Abdullah University of Science & Technology (KAUST)",
+    date: "2020 – 2022",
+    impact: "Deepened expertise in NLP and AI systems at KAUST, one of the region's top research institutions,  directly laying the groundwork for technical leadership in LLM space.",
+    bullets: [
+      "Graduate research in NLP, GANs, and distributed systems",
+      "Reviewed papers for top-tier conferences including ACL and NeurIPS",
+      "Teaching Assistant for introductory graduate-level courses"
+    ],
   },
-  {
-    role: "Lead AI Engineer",
-    org: "Tech Group",
-    date: "2020–2022",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    {
+    role: "Lead Researcher",
+    org: "Deanship of Research, KFUPM",
+    date: "2018 – 2021",
+    impact: "Managed $17,000+ in research grants as Principal Investigator across Systems and Machine Learning — producing peer-reviewed publications at international venues.",
+    bullets: [
+      "Managed $17,000+ in research grants as Principal Investigator",
+      "Led multiple research projects spanning Systems and Machine Learning domains",
+      "Published outcomes at peer-reviewed international conferences including Mobicom 2020, CoRR 2021",
+    ],
   },
-  {
-    role: "Principal Data Scientist",
-    org: "Innovate Inc",
-    date: "2022–2024",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    {
+    role: "Automation Engineer Intern",
+    org: "Innovation Team, Saudi Aramco",
+    date: "Jun – Aug 2019",
+    impact: "Self-initiated OpenCV and automation projects projected to save ~$500,000 annually, demonstrating entrepreneurial drive within one of the world's largest energy companies.",
+    bullets: [
+      "Proposed and implemented OpenCV-based automation entirely on personal initiative",
+      "Projected $500,000 in annual cost savings by automating core business processes"],
   },
-  {
-    role: "Director of AI",
-    org: "Frontier AI",
-    date: "2024–Present",
-    impact: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
+    {
+    role: "B.Sc. Computer Science — Honours",
+    org: "King Fahd University of Petroleum & Minerals",
+    date: "2015 – 2020",
+    impact: "Graduated with Distinction, building deep foundations in algorithms, systems, and machine learning while concurrently leading university research as Principal Investigator.",
+    bullets: [
+      "Graduated with B.Sc. Honors in Computer Science",
+      "Principal Investigator for multiple ML & Systems research projects",
+      "Laid the technical foundation for a career at the frontier of AI research and engineering",
+    ],
+  }
 ];
 ---
-<section id="journey">
+<section>
   <div class="inner">
-    <h2>Journey</h2>
-    <div class="heading-accent" aria-hidden="true"></div>
-    <ol class="timeline">
-      {entries.map((entry) => (
-        <li class="timeline-entry">
-          <span class="timeline-dot" aria-hidden="true"></span>
-          <div class="timeline-card">
-            <p class="entry-role">{entry.role}</p>
-            <p class="entry-org">{entry.org}</p>
-            <p class="entry-date">{entry.date}</p>
-            <p class="entry-impact">{entry.impact}</p>
+    <header class="section-header">
+      <span class="section-tag">Career</span>
+      <h2>Experience Timeline</h2>
+      <p class="section-sub">From Honours graduate to national AI lead — a decade of compounding impact.</p>
+    </header>
+
+    <ol class="timeline" aria-label="Career timeline">
+      {entries.map((entry, i) => (
+        <li class={`timeline-entry${i % 2 === 1 ? " even" : ""}`}>
+
+          <div class="entry-dot" aria-hidden="true">
+            <div class="dot-ring"></div>
+            <div class="dot-core"></div>
           </div>
+
+          <details class="timeline-card">
+            <summary>
+              <div class="card-top">
+                <div class="card-meta">
+                  <h3 class="entry-role">{entry.role}</h3>
+                  <p class="entry-org">{entry.org}</p>
+                </div>
+                <div class="card-right">
+                  <span class="entry-date">{entry.date}</span>
+                </div>
+              </div>
+              <p class="entry-impact">{entry.impact}</p>
+              <span class="expand-cta" aria-hidden="true">
+                <span class="cta-show">Show highlights →</span>
+                <span class="cta-hide">Hide ↑</span>
+              </span>
+            </summary>
+            <ul class="entry-bullets">
+              {entry.bullets.map(b => <li>{b}</li>)}
+            </ul>
+          </details>
+
         </li>
       ))}
     </ol>
@@ -73,157 +123,224 @@ const entries: JourneyEntry[] = [
 <style>
   section {
     background-color: var(--color-bg);
-    padding: var(--space-2xl) var(--space-md);
-    color: var(--color-text);
+    padding: var(--space-3xl) var(--space-xl);
+    position: relative;
   }
 
-  .inner {
-    max-width: 1100px;
-    margin: 0 auto;
+  .inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-header { text-align: center; margin-bottom: var(--space-3xl); }
+
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-blue);
+    margin-bottom: var(--space-sm);
   }
 
   h2 {
-    font-family: var(--font-display);
-    font-size: 28px;
+    font-family: var(--font-heading);
+    font-size: clamp(28px, 4vw, 40px);
     font-weight: 700;
-    line-height: 1.2;
     color: var(--color-text);
-    text-align: center;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-sm);
   }
 
-  .heading-accent {
-    width: 40px;
-    height: 2px;
-    background-color: var(--color-accent);
-    margin: var(--space-xs) auto var(--space-2xl);
-  }
+  .section-sub { font-size: 15px; color: var(--color-text-muted); }
 
+  /* ─── Timeline ─────────────────────────────────── */
   .timeline {
     list-style: none;
-    margin: 0;
     padding: 0;
+    margin: 0;
     position: relative;
-    display: grid;
-    grid-template-columns: 16px 1fr;
-    column-gap: var(--space-md);
-    row-gap: var(--space-xl);
   }
 
-  /* Stem line — left-edge vertical line on mobile */
   .timeline::before {
     content: '';
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 7px;
+    top: 0; bottom: 0;
+    left: calc(50% - 1px);
     width: 2px;
-    background-color: var(--color-surface);
+    background: linear-gradient(to bottom, var(--color-blue), transparent);
+    pointer-events: none;
   }
 
   .timeline-entry {
     position: relative;
-    grid-column: 2;
+    width: 100%;
     display: flex;
-    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: var(--space-2xl);
   }
 
-  .timeline-dot {
+  .timeline-entry.even { justify-content: flex-end; }
+
+  .entry-dot {
     position: absolute;
-    top: var(--space-lg);
-    left: -17px;
-    width: 12px;
-    height: 12px;
+    top: 18px;
+    left: calc(50% - 8px);
+    width: 16px; height: 16px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .dot-core {
+    position: absolute; inset: 0;
     border-radius: 50%;
-    background-color: var(--color-accent);
+    background-color: var(--color-blue);
     border: 2px solid var(--color-bg);
-    box-sizing: content-box;
+  }
+
+  .dot-ring {
+    position: absolute; inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(30, 144, 255, 0.4);
+    animation: pulse-node 2.4s ease-out infinite;
+  }
+
+  @keyframes pulse-node {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    100% { transform: scale(2.2); opacity: 0;   }
   }
 
   .timeline-card {
+    width: calc(50% - 48px);
     background-color: var(--color-surface);
-    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  }
+
+  .timeline-entry:not(.even) .timeline-card { margin-right: 48px; }
+  .timeline-entry.even .timeline-card       { margin-left: 48px; }
+
+  .timeline-card:hover,
+  details[open].timeline-card {
+    border-color: rgba(30, 144, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.07);
+  }
+
+  details summary {
+    list-style: none;
     padding: var(--space-lg);
-    width: 100%;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  details summary::-webkit-details-marker { display: none; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
   }
 
   .entry-role {
-    font-family: var(--font-body);
-    font-size: 16px;
+    font-family: var(--font-heading);
+    font-size: 15px;
     font-weight: 700;
-    line-height: 1.4;
     color: var(--color-text);
+    line-height: 1.3;
   }
 
   .entry-org {
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--color-accent);
-    margin-top: var(--space-xs);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-blue);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-xs);
+    flex-shrink: 0;
   }
 
   .entry-date {
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.4;
+    font-family: var(--font-mono);
+    font-size: 11px;
     color: var(--color-text-muted);
-    margin-top: var(--space-xs);
+    white-space: nowrap;
   }
+
+  .expand-cta {
+    display: inline-block;
+    margin-top: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-blue);
+    letter-spacing: 0.05em;
+    opacity: 0.65;
+    transition: opacity 0.2s var(--ease);
+  }
+
+  .timeline-card:hover .expand-cta,
+  details[open] .expand-cta { opacity: 1; }
+
+  .cta-hide { display: none; }
+  details[open] .cta-show { display: none; }
+  details[open] .cta-hide { display: inline; }
 
   .entry-impact {
-    font-family: var(--font-body);
-    font-size: 16px;
-    font-weight: 400;
+    font-size: 13px;
     line-height: 1.6;
-    color: var(--color-text);
-    margin-top: var(--space-sm);
+    color: var(--color-text-muted);
   }
 
-  /* Desktop: center-stem alternating layout (>=768px) */
-  @media (min-width: 768px) {
-    section {
-      padding: var(--space-3xl) var(--space-xl);
-    }
+  .entry-bullets {
+    list-style: none;
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
 
-    .timeline {
-      grid-template-columns: 1fr 2px 1fr;
-      column-gap: var(--space-xl);
-      row-gap: var(--space-2xl);
-    }
+  .entry-bullets li {
+    font-size: 13px;
+    color: var(--color-text);
+    line-height: 1.5;
+    padding-left: var(--space-lg);
+    position: relative;
+  }
 
-    .timeline::before {
-      left: 50%;
-      transform: translateX(-50%);
-    }
+  .entry-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px;
+    width: 8px; height: 1px;
+    background-color: var(--color-blue);
+  }
 
-    .timeline-entry {
-      grid-column: 1;
-      justify-self: end;
-      align-items: flex-end;
-    }
+  /* ─── Mobile ───────────────────────────────────── */
+  @media (max-width: 767px) {
+    section { padding: var(--space-3xl) var(--space-md); }
 
-    .timeline-entry:nth-child(even) {
-      grid-column: 3;
-      justify-self: start;
-      align-items: flex-start;
-    }
+    .timeline { padding-left: 40px; }
+    .timeline::before { left: 15px; }
 
-    .timeline-card {
-      max-width: 440px;
-    }
+    .timeline-entry,
+    .timeline-entry.even { justify-content: flex-start; }
 
-    /* Dot positioned on the center stem */
-    .timeline-entry .timeline-dot {
-      top: var(--space-lg);
-      left: auto;
-      right: calc(-1 * var(--space-xl) - 6px);
-    }
+    .entry-dot { left: -32px; }
 
-    .timeline-entry:nth-child(even) .timeline-dot {
-      left: calc(-1 * var(--space-xl) - 6px);
-      right: auto;
+    .timeline-card,
+    .timeline-entry:not(.even) .timeline-card,
+    .timeline-entry.even .timeline-card {
+      width: 100%;
+      margin-right: 0;
+      margin-left: 0;
     }
   }
 </style>

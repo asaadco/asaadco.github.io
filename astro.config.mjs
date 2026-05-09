@@ -1,6 +1,5 @@
 // astro.config.mjs
-// Source: https://docs.astro.build/en/guides/deploy/github/
-// Source: https://docs.astro.build/en/guides/fonts/
+// Updated for Data Modernist design: Space Grotesk + JetBrains Mono via fontsource.
 import { defineConfig, fontProviders } from "astro/config";
 
 export default defineConfig({
@@ -9,17 +8,17 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: "Inter",
-      cssVariable: "--font-inter",
-      weights: ["100 900"],
+      name: "Space Grotesk",
+      cssVariable: "--font-space-grotesk",
+      weights: ["300 700"],
       styles: ["normal"],
     },
     {
       provider: fontProviders.fontsource(),
-      name: "Playfair Display",
-      cssVariable: "--font-playfair",
-      weights: ["400 900"],
-      styles: ["normal", "italic"],
+      name: "JetBrains Mono",
+      cssVariable: "--font-jetbrains-mono",
+      weights: ["400 700"],
+      styles: ["normal"],
     },
   ],
 });

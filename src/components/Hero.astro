@@ -1,81 +1,762 @@
 ---
 // src/components/Hero.astro
-// Phase 2: Full-viewport hero section. Static — no client:* directives.
-// Implements: HERO-01 (name + tagline), HERO-02 (About narrative folded in per D-04).
-// Anchor target: #hero (referenced by Nav "About" link).
+// Data Modernist hero: full-viewport, 60×60 background grid,
+// Conway's Game of Life canvas background, status badge, KPI card,
+// and an infinitely-scrolling tech strip anchored to the bottom.
+
+interface Tech {
+  name: string;
+  slug?: string;   // Simple Icons slug → CDN image
+  abbr?: string;   // Fallback monogram if no slug
+  color: string;
+}
+
+const techs: Tech[] = [
+  { name: "Python",           slug: "python",         color: "#3776AB" },
+  { name: "Microsoft Azure",  slug: "icloud",          color: "#0078D4" },
+  { name: "Javascript",       slug: "javascript",     color: "#74aa9c" },
+  { name: "Docker",           slug: "docker",         color: "#2496ED" },
+  { name: "Jira",             slug: "jira",           color: "#1C3C3C" },
+  { name: "Palantir",         slug: "palantir",       color: "#A0A0A0" },
+  { name: "Hugging Face",     slug: "huggingface",    color: "#FFD21E" },
+  { name: "Ollama",           slug: "ollama",         color: "#E0E0E0" },
+  { name: "LangGraph",        slug: "langgraph",      color: "#1C7A6B" },
+];
+const doubled = [...techs, ...techs];
 ---
 <section id="hero">
+
+  <!-- 60×60 dot-grid overlay -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- Game of Life canvas -->
+  <canvas class="gol-canvas" aria-hidden="true"></canvas>
+
+  <!-- Gradient fade so the canvas blends into the page below -->
+  <div class="gol-gradient" aria-hidden="true"></div>
+
   <div class="hero-inner">
-    <h1>Asaad</h1>
-    <p class="hero-tagline">Data &amp; AI professional, inspirational speaker, and technical career coach.</p>
-    <div class="hero-about">
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
-      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+
+    <!-- LEFT: avatar -->
+    <div class="hero-avatar-wrap">
+      <img
+        src="/asaad-avatar.png"
+        alt="Asaad — pixel art portrait"
+        class="hero-avatar"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
+
+    <!-- RIGHT: content -->
+    <div class="hero-content">
+      <!-- <div class="status-badge">
+        <span class="pulse-ring" aria-hidden="true"></span>
+        <span class="pulse-dot"  aria-hidden="true"></span>
+        Available for opportunities
+      </div> -->
+
+      <h1><span class="hero-name">Asaad</span></h1>
+
+      <p class="hero-tagline headline-secondary">
+        <span>Data & AI, Systems, People</span>
+      </p>
+
+      <div class="hero-body">
+        <p>
+        Agentic AI, Systems Engineering, and Automations built for business outcomes and adoption.     
+      </p>
+      </div>
+
+      <div class="hero-ctas">
+        <a href="/Asaad_Alghamdi_Resume.pdf" class="btn-secondary">Read My Resume</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: KPI snapshot card -->
+    <!-- <aside class="kpi-card" aria-label="Key Performance Snapshot">
+      <div class="kpi-header">
+        <span class="kpi-label">Key Performance Snapshot</span>
+        <span class="kpi-pulse-dot" aria-hidden="true"></span>
+      </div>
+
+      <div class="kpi-metrics">
+        <div class="kpi-metric">
+          <div class="kpi-meta">
+            <span class="kpi-name">Projects Delivered On-Time</span>
+            <span class="kpi-value" data-target="94">0<span class="kpi-unit">%</span></span>
+          </div>
+          <div class="kpi-track" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100">
+            <div class="kpi-fill kpi-fill--blue" style="--pct: 94%"></div>
+          </div>
+        </div>
+
+        <div class="kpi-metric">
+          <div class="kpi-meta">
+            <span class="kpi-name">Stakeholder Satisfaction</span>
+            <span class="kpi-value kpi-value--amber" data-target="97">0<span class="kpi-unit">%</span></span>
+          </div>
+          <div class="kpi-track" role="progressbar" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100">
+            <div class="kpi-fill kpi-fill--amber" style="--pct: 97%"></div>
+          </div>
+        </div>
+
+        <div class="kpi-metric">
+          <div class="kpi-meta">
+            <span class="kpi-name">Research to Production Rate</span>
+            <span class="kpi-value kpi-value--green" data-target="89">0<span class="kpi-unit">%</span></span>
+          </div>
+          <div class="kpi-track" role="progressbar" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100">
+            <div class="kpi-fill kpi-fill--green" style="--pct: 89%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-footer">
+        <span class="mono-label">ASAAD.METRICS.v2026</span>
+      </div>
+    </aside> -->
+
+  </div>
+
+  <!-- Tech strip — anchored to the bottom of the hero -->
+  <div class="hero-strip" aria-label="Technology stack">
+    <div class="strip-mask">
+      <div class="strip-track">
+        {doubled.map((tech, i) => (
+          <div class="tech-item" aria-hidden={i >= techs.length ? "true" : undefined}>
+            {tech.slug ? (
+              <img
+                src={`https://cdn.simpleicons.org/${tech.slug}/ffffff`}
+                alt={tech.name}
+                width="22"
+                height="22"
+                class="tech-icon"
+                loading="lazy"
+              />
+            ) : (
+              <span
+                class="tech-abbr"
+                style={`color:${tech.color}; border-color:${tech.color}30;`}
+              >
+                {tech.abbr}
+              </span>
+            )}
+            <span class="tech-name">{tech.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
+
 </section>
+
+<!-- ─── Conway's Game of Life ──────────────────────── -->
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('.gol-canvas')!;
+  const ctx    = canvas.getContext('2d')!;
+
+  const CELL          = 7;
+  const TICK_MS       = 120;     // ~8 fps
+  const MAX_ALPHA     = 0.18;
+
+  const START_DENSITY = 0.022;
+  const MAX_DENSITY   = 0.15;
+  const RAMP_MS       = 120_000;
+
+  const FADE_IN  = 0.07;   // ~14 ticks ≈ 1.7 s to appear
+  const FADE_OUT = 0.05;   // ~20 ticks ≈ 2.4 s to vanish
+
+  // Still-life pruning: if a cell's 3×3 neighbourhood has had zero
+  // state-changes for STASIS ticks, the cell is a still life → kill it.
+  // Oscillators always have neighbourhood activity so they are never pruned.
+  const STASIS = 12;       // 12 × 120 ms ≈ 1.4 s of total stillness → dissolve
+
+  const startedAt = Date.now();
+  let cols = 0, rows = 0;
+  let cells       = new Uint8Array(0);
+  let brightness  = new Float32Array(0);
+  let activityAge = new Int32Array(0); // ticks since any neighbour-change
+
+  function targetDensity(): number {
+    const t = Math.min((Date.now() - startedAt) / RAMP_MS, 1);
+    return START_DENSITY + (MAX_DENSITY - START_DENSITY) * (t * t);
+  }
+
+  function aliveRatio(): number {
+    let n = 0;
+    for (const c of cells) n += c;
+    return n / cells.length;
+  }
+
+  function randomize(): void {
+    cells       = new Uint8Array(cols * rows);
+    brightness  = new Float32Array(cols * rows);
+    activityAge = new Int32Array(cols * rows);
+    for (let i = 0; i < cells.length; i++) {
+      cells[i] = Math.random() < START_DENSITY ? 1 : 0;
+    }
+  }
+
+  function resize(): void {
+    const rect = canvas.parentElement!.getBoundingClientRect();
+    canvas.width  = rect.width;
+    canvas.height = rect.height;
+    cols = Math.ceil(rect.width  / CELL);
+    rows = Math.ceil(rect.height / CELL);
+    randomize();
+    draw();
+  }
+
+  function inject(): void {
+    const deficit = targetDensity() - aliveRatio();
+    if (deficit <= 0) return;
+    const toAdd = Math.max(Math.floor(cols * rows * deficit * 0.5), 12);
+    let added = 0;
+    while (added < toAdd) {
+      const cx = Math.floor(Math.random() * cols);
+      const cy = Math.floor(Math.random() * rows);
+      for (let dy = -1; dy <= 1 && added < toAdd; dy++) {
+        for (let dx = -1; dx <= 1 && added < toAdd; dx++) {
+          if (Math.random() < 0.6) {
+            const x = (cx + dx + cols) % cols;
+            const y = (cy + dy + rows) % rows;
+            if (!cells[y * cols + x]) {
+              cells[y * cols + x] = 1;
+              added++;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function step(): void {
+    const next    = new Uint8Array(cols * rows);
+    const changed = new Uint8Array(cols * rows);
+
+    // ① Standard GoL rules
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = y * cols + x;
+        let n = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            n += cells[((y + dy + rows) % rows) * cols + ((x + dx + cols) % cols)];
+          }
+        }
+        const alive = cells[i];
+        next[i]    = alive ? (n === 2 || n === 3 ? 1 : 0) : (n === 3 ? 1 : 0);
+        changed[i] = (next[i] !== alive) ? 1 : 0;
+      }
+    }
+
+    // ② Update activityAge per cell (any change in 3×3 → reset to 0)
+    //    then prune alive cells whose neighbourhood has been frozen too long
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = y * cols + x;
+        let active = 0;
+        outer: for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (changed[((y + dy + rows) % rows) * cols + ((x + dx + cols) % cols)]) {
+              active = 1;
+              break outer;
+            }
+          }
+        }
+        activityAge[i] = active ? 0 : activityAge[i] + 1;
+
+        // Still life detected → kill cell (brightness fades it out gracefully)
+        if (next[i] === 1 && activityAge[i] > STASIS) {
+          next[i]         = 0;
+          activityAge[i]  = 0;
+        }
+      }
+    }
+
+    cells = next;
+  }
+
+  function draw(): void {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = y * cols + x;
+        brightness[i] = cells[i]
+          ? Math.min(brightness[i] + FADE_IN,  1)
+          : Math.max(brightness[i] - FADE_OUT, 0);
+        if (brightness[i] > 0.01) {
+          ctx.fillStyle = `rgba(30,144,255,${(MAX_ALPHA * brightness[i]).toFixed(3)})`;
+          ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1);
+        }
+      }
+    }
+  }
+
+  resize();
+
+  let resizeTimer: ReturnType<typeof setTimeout>;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+
+  const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!noMotion) {
+    setInterval(() => { step(); draw(); }, TICK_MS);
+    setInterval(inject, 2500);
+  }
+</script>
+
+<!-- ─── KPI count-up on scroll ─────────────────────── -->
+<script>
+  const kpiValues = document.querySelectorAll<HTMLElement>('.kpi-value[data-target]');
+  kpiValues.forEach(el => {
+    const target   = parseInt(el.dataset.target ?? '0', 10);
+    const unitHTML = '<span class="kpi-unit">%</span>';
+    let startTime: number | null = null;
+    const DURATION = 1200;
+
+    const animate = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const p    = Math.min((ts - startTime) / DURATION, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.innerHTML = Math.round(ease * target) + unitHTML;
+      if (p < 1) requestAnimationFrame(animate);
+    };
+
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { requestAnimationFrame(animate); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+  });
+</script>
 
 <style>
   section {
+    position: relative;
     min-height: 100vh;
-    background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-deep) 100%);
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    /* extra bottom padding leaves room for the tech strip (~72px) */
+    padding: 100px var(--space-xl) calc(var(--space-3xl) + 72px);
+    background-color: var(--color-bg);
+    overflow: hidden;
+  }
+
+  /* 60×60 dot-grid */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(30,144,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30,144,255,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Game of Life canvas */
+  .gol-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Gradient fade — canvas → page background */
+  .gol-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Content sits above canvas + gradient */
+  .hero-inner {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xl);
+  }
+
+  /* ─── Avatar ──────────────────────────────────────── */
+  .hero-avatar-wrap {
+    flex-shrink: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-3xl) var(--space-md);
-    color: var(--color-text);
   }
 
-  .hero-inner {
+  .hero-avatar {
+    width: clamp(220px, 28vw, 360px);
+    height: auto;
+    display: block;
+    /* glow picked up from the existing blue accent */
+    filter: drop-shadow(0 0 48px rgba(96, 165, 250, 0.18));
+  }
+
+  .hero-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    position: relative;
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 6px 16px 6px 28px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-green);
+    margin-bottom: var(--space-xl);
+    width: fit-content;
+  }
+
+  .pulse-dot {
+    position: absolute;
+    left: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-green);
+  }
+
+  .pulse-ring {
+    position: absolute;
+    left: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--color-green);
+    animation: pulse-ring 2s ease-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%   { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(2.8); opacity: 0; }
+  }
+
+  /* Heading container */
+  h1 {
+    margin-bottom: var(--space-lg);
+    line-height: 1;
+  }
+
+  .hero-name {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: clamp(44px, 6vw, 72px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-blue);
+  }
+
+  .headline-accent { color: var(--color-blue); }
+  .headline-secondary { color: var(--color-white); }
+  .hero-tagline {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-white);
+    line-height: 1.5;
+    max-width: 500px;
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero-body p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-muted);
+    max-width: 720px;
+    margin-bottom: var(--space-xl);
+  }
+
+  /* CTAs */
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: var(--color-blue);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 12px 28px;
+    background: transparent;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #2E4057;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .btn-secondary:hover { border-color: var(--color-blue); color: var(--color-blue); }
+
+  /* ─── KPI card ──────────────────────────────── */
+  .kpi-card {
+    width: 320px;
+    flex-shrink: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    position: relative;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(30,144,255,0.12) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xl);
+  }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+  }
+
+  .kpi-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-blue);
+    box-shadow: 0 0 8px var(--color-blue);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  .kpi-metrics {
     display: flex;
     flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .kpi-meta {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
-    max-width: 640px;
-    width: 100%;
+    margin-bottom: var(--space-sm);
   }
 
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 6vw, 56px);
-    font-weight: 700;
-    line-height: 1.1;
-    color: var(--color-text);
-  }
-
-  .hero-tagline {
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.2;
+  .kpi-name {
+    font-size: 13px;
     color: var(--color-text-muted);
-    margin-top: var(--space-md);
   }
 
-  .hero-about {
-    margin-top: var(--space-xl);
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
-  }
-
-  .hero-about p {
-    font-family: var(--font-body);
+  .kpi-value {
+    font-family: var(--font-mono);
     font-size: 16px;
-    font-weight: 400;
-    line-height: 1.6;
-    color: var(--color-text);
+    font-weight: 700;
+    color: var(--color-blue);
+  }
+  .kpi-value--amber { color: var(--color-amber); }
+  .kpi-value--green { color: var(--color-green); }
+
+  .kpi-unit { font-size: 11px; font-weight: 400; }
+
+  .kpi-track {
+    width: 100%;
+    height: 6px;
+    background-color: var(--color-track);
+    border-radius: 3px;
+    overflow: hidden;
   }
 
-  .hero-about p + p {
-    margin-top: var(--space-md);
+  .kpi-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    animation: fill-bar 1.4s var(--ease) forwards;
+    animation-delay: 0.4s;
   }
 
-  @media (min-width: 768px) {
-    section {
-      padding: 96px var(--space-xl);
+  @keyframes fill-bar { to { width: var(--pct); } }
+
+  .kpi-fill--blue  { background-color: var(--color-blue); }
+  .kpi-fill--amber { background-color: var(--color-amber); }
+  .kpi-fill--green { background-color: var(--color-green); }
+
+  .kpi-footer {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .mono-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .hero-inner {
+      flex-direction: column;
+      align-items: flex-start;
     }
+  }
+
+  @media (max-width: 768px) {
+    section {
+      padding: 90px var(--space-md) calc(var(--space-2xl) + 72px);
+    }
+
+    /* Stack: avatar above text, centred */
+    .hero-inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: left;
+    }
+
+    .hero-avatar {
+      width: clamp(220px, 60vw, 300px);
+      filter: drop-shadow(0 0 28px rgba(96, 165, 250, 0.12));
+    }
+  }
+
+  /* ─── Tech strip ────────────────────────────────── */
+  .hero-strip {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .strip-mask {
+    --fade: 120px;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--fade),
+      black calc(100% - var(--fade)),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--fade),
+      black calc(100% - var(--fade)),
+      transparent 100%
+    );
+  }
+
+  .strip-track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xl);
+    width: max-content;
+    animation: marquee 35s linear infinite;
+    will-change: transform;
+  }
+
+  .strip-track:hover { animation-play-state: paused; }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .tech-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    opacity: 0.72;
+    transition: opacity 0.2s ease;
+  }
+
+  .tech-item:hover { opacity: 1; }
+
+  .tech-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: brightness(0.9);
+    flex-shrink: 0;
+  }
+
+  .tech-abbr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .tech-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip-track { animation: none; }
   }
 </style>
