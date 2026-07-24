@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Riyadh Lifestyle Calculator</title>
+<meta name="description" content="Pin your commute, confess your habits, and get the receipt for what living in Riyadh actually costs you per month.">
+<link rel="canonical" href="https://asaad101.sa/riyadh_calc/">
+<meta name="theme-color" content="#0C352A">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://asaad101.sa/riyadh_calc/">
+<meta property="og:site_name" content="asaad101.sa">
+<meta property="og:title" content="The Riyadh Lifestyle Calculator">
+<meta property="og:description" content="Pin your commute, confess your habits, and get the receipt for what living in Riyadh actually costs you per month.">
+<meta property="og:image" content="https://asaad101.sa/riyadh_calc/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A printed receipt itemizing the monthly cost of living in Riyadh.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_SA">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Riyadh Lifestyle Calculator">
+<meta name="twitter:description" content="Pin your commute, confess your habits, and get an itemized receipt for what living in Riyadh actually costs you per month.">
+<meta name="twitter:image" content="https://asaad101.sa/riyadh_calc/og.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230C352A'/><path d='M9 5h14v21l-2.33-1.6L18.33 26 16 24.4 13.67 26l-2.34-1.6L9 26z' fill='%23F6F4EE'/><g fill='%230C352A'><rect x='12' y='9.5' width='8' height='1.7'/><rect x='12' y='13.5' width='8' height='1.7'/><rect x='12' y='17.5' width='5' height='1.7'/></g></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --bg:#0C352A;
+    --bg-2:#0F4033;
+    --paper:#F6F4EE;
+    --ink:#1E1E1C;
+    --ink-faint:#6E6C64;
+    --stamp:#C13A2E;
+    --gold:#C9A227;
+    --line:rgba(30,30,28,.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, var(--bg-2), transparent 60%),
+      var(--bg);
+    color:var(--paper);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+  header{margin-bottom:40px}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:14px;
+  }
+  h1{font-size:clamp(30px,4.5vw,52px);font-weight:700;line-height:1.05;letter-spacing:-.01em;max-width:640px}
+  .sub{margin-top:14px;color:rgba(246,244,238,.72);max-width:560px;font-size:16px;line-height:1.55}
+
+  .step{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:10px;
+  }
+  section{margin-bottom:64px}
+  section h2{font-size:clamp(22px,3vw,32px);font-weight:700;line-height:1.1}
+  section .sub{margin-bottom:22px;font-size:15px}
+
+  /* ---------- custom categories ---------- */
+const customList = document.getElementById('custom-list');
+
+document.getElementById('add-cat').onclick = () => {
+  const row = document.createElement('div');
+  row.className = 'field custom-row';
+  row.innerHTML = `
+    <label class="name">
+      <input class="cat-name" type="text" data-i18n-ph="catPh" placeholder="${t('catPh')}">
+      <span class="val cat-val">${tpl('valTimes', {q: 4})}</span>
+      <button class="cat-del" title="${t('delCat')}" aria-label="${t('delCat')}">&times;</button>
+    </label>
+    <input class="cat-count" type="range" min="0" max="30" value="4">
+    <div class="hint avg"><span data-i18n="avgWord">${t('avgWord')}</span> <input class="price-edit cat-price" type="number" value="100" min="0"> <span>${t('sar')}</span></div>`;
+  row.querySelector('.cat-del').onclick = () => { row.remove(); calc(); };
+  row.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+  customList.appendChild(row);
+  row.querySelector('.cat-name').focus();
+  calc();
+};
+
+/* ---------- rent controls ---------- */
+const rentInput  = document.getElementById('rent');
+const resetBtn   = document.getElementById('reset-rent');
+const rentSrc    = document.getElementById('v-rent-src');
+
+function renderRentSrc(){
+  const nb = rent.areaNb;
+  if (!nb){ rentSrc.textContent = t('rentSrcPrompt'); resetBtn.hidden = true; return; }
+  const name = nbName(nb);
+  if (nb.rent == null){
+    rentSrc.textContent = tpl('noAvg', {name});
+    resetBtn.hidden = true;
+    return;
+  }
+  if (!rent.edited){
+    rentSrc.textContent = tpl('rentSrcAvg', {name});
+    resetBtn.hidden = true;
+  } else {
+    rentSrc.textContent = t('rentSrcYour');
+    resetBtn.hidden = false;
+    resetBtn.textContent = tpl('useAvgBtn', {name, amt: nb.rent.toLocaleString('en-US')});
+  }
+}
+
+function applyAreaRent(nb){
+  rent.areaNb = nb;
+  if (nb.rent != null && !rent.edited) rentInput.value = nb.rent;
+  renderRentSrc();
+}
+
+rentInput.addEventListener('input', () => {
+  rent.edited = true;
+  renderRentSrc();
+  calc();
+});
+
+resetBtn.onclick = () => {
+  const nb = rent.areaNb;
+  if (!nb || nb.rent == null) return;
+  rentInput.value = nb.rent;
+  rent.edited = false;
+  renderRentSrc();
+  calc();
+};
+
+/* ---------- map ---------- */
+  .commute-grid{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+  @media (max-width:900px){.commute-grid{grid-template-columns:1fr}}
+  #map{
+    height:440px;border-radius:12px;overflow:hidden;
+    border:1px solid rgba(246,244,238,.18);filter:saturate(.85);
+  }
+  @media (max-width:900px){#map{height:340px}}
+  .pin-btns{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .pin-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.04em;
+    background:rgba(246,244,238,.06);border:1px solid rgba(246,244,238,.22);
+    color:var(--paper);border-radius:8px;padding:9px 14px;cursor:pointer;
+  }
+  .pin-btn.active{background:var(--paper);color:var(--bg);font-weight:600}
+  .pin-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* mode switch */
+  .mode-switch{display:flex;gap:0;margin-top:14px;border:1px solid rgba(246,244,238,.22);border-radius:10px;overflow:hidden}
+  .mode-switch button{
+    flex:1;background:transparent;border:none;color:rgba(246,244,238,.7);cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;padding:12px 10px;letter-spacing:.04em;
+  }
+  .mode-switch button.active{background:var(--paper);color:var(--bg);font-weight:600}
+  .mode-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+  .commute-card{
+    background:rgba(246,244,238,.05);border:1px solid rgba(246,244,238,.14);
+    border-radius:12px;padding:20px;font-size:14px;line-height:1.6;
+  }
+  .commute-card h3{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:12px;
+  }
+  .cc-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed rgba(246,244,238,.12)}
+  .cc-row:last-child{border-bottom:none}
+  .cc-row .k{color:rgba(246,244,238,.65)}
+  .cc-row .v{font-family:'IBM Plex Mono',monospace;text-align:right}
+  .cc-sub{padding-inline-start:14px;color:rgba(246,244,238,.5) !important;font-size:13px}
+  .cc-block{margin-bottom:14px}
+  .cc-block-title{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:rgba(246,244,238,.85);margin-bottom:4px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .cc-block.selected{border-inline-start:2px solid var(--gold);padding-inline-start:10px;margin-inline-start:-12px}
+  .tag{font-size:10px;letter-spacing:.1em;color:var(--gold)}
+  .cc-note{font-size:12px;color:rgba(246,244,238,.45);margin-top:12px;font-family:'IBM Plex Mono',monospace;line-height:1.5}
+
+  /* ---------- controls + receipt ---------- */
+  .grid{display:grid;grid-template-columns:1fr 400px;gap:48px;align-items:start}
+  @media (max-width:900px){.grid{grid-template-columns:1fr;gap:36px}}
+  .controls .field{margin-bottom:26px}
+  label.name{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:15px;font-weight:500}
+  label.name .val{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold)}
+  .rent-row input[type=number]{
+    background:transparent;border:none;outline:none;color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;width:100%;
+  }
+  /* kill native spinners everywhere */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  .price-edit{
+    width:5.5ch;background:rgba(246,244,238,.06);
+    border:1px solid rgba(246,244,238,.18);border-radius:7px;
+    padding:5px 8px;text-align:end;outline:none;
+    font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;
+    color:var(--gold);
+  }
+  .price-edit:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;
+    background:rgba(246,244,238,.18);outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--paper);border:3px solid var(--bg);box-shadow:0 0 0 1.5px var(--paper);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:14px;height:14px;border-radius:50%;background:var(--paper);border:3px solid var(--bg);
+    box-shadow:0 0 0 1.5px var(--paper);
+  }
+  input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+  .hint{font-size:13px;color:rgba(246,244,238,.5);margin-top:8px;font-family:'IBM Plex Mono',monospace;line-height:1.6}
+  .rent-field{
+    background:rgba(246,244,238,.05);border:1px solid rgba(246,244,238,.14);
+    border-radius:12px;padding:18px;margin-bottom:32px !important;
+  }
+  .rent-row{
+    display:flex;align-items:center;gap:12px;background:rgba(246,244,238,.06);
+    border:1px solid rgba(246,244,238,.14);border-radius:10px;padding:12px 14px;
+  }
+  .rent-row span{font-family:'IBM Plex Mono',monospace;font-size:13px;color:rgba(246,244,238,.6);white-space:nowrap}
+  .rent-row input:focus-visible{outline:none}
+  .add-cat{
+    width:100%;background:transparent;border:1px dashed rgba(246,244,238,.3);
+    color:rgba(246,244,238,.75);font-family:'IBM Plex Mono',monospace;font-size:13px;
+    border-radius:10px;padding:13px;cursor:pointer;letter-spacing:.04em;margin-top:4px;
+  }
+  .add-cat:hover{border-color:var(--gold);color:var(--gold)}
+  .add-cat:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .custom-row label.name{gap:10px}
+  .cat-name{
+    flex:1;background:transparent;border:none;border-bottom:1px solid rgba(246,244,238,.25);
+    color:var(--paper);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;
+    padding:2px 2px 4px;outline:none;min-width:0;
+  }
+  .cat-name:focus{border-bottom-color:var(--gold)}
+  .cat-name::placeholder{color:rgba(246,244,238,.35);font-weight:400}
+  .cat-del{
+    background:transparent;border:none;color:rgba(246,244,238,.4);cursor:pointer;
+    font-size:17px;line-height:1;padding:0 2px;flex:none;
+  }
+  .cat-del:hover{color:var(--stamp)}
+  .cat-del:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+  .reset-rent{
+    margin-top:10px;background:transparent;border:1px solid rgba(201,162,39,.5);color:var(--gold);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;border-radius:8px;padding:7px 12px;cursor:pointer;
+  }
+  .reset-rent:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .avg{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(246,244,238,.55);flex-wrap:wrap}
+
+  /* ---------- receipt ---------- */
+  .receipt-holder{position:sticky;top:28px}
+  @media (max-width:900px){.receipt-holder{position:static}}
+  .receipt{
+    background:var(--paper);color:var(--ink);
+    font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.5;
+    padding:26px 22px 30px;
+    box-shadow:0 24px 60px rgba(0,0,0,.45);
+    position:relative;
+    -webkit-mask:
+      linear-gradient(#000 0 0) center/100% calc(100% - 16px) no-repeat,
+      radial-gradient(circle at 6px 8px, transparent 5px, #000 5.5px) top/12px 8px repeat-x,
+      radial-gradient(circle at 6px 0px, transparent 5px, #000 5.5px) bottom/12px 8px repeat-x;
+    mask:
+      linear-gradient(#000 0 0) center/100% calc(100% - 16px) no-repeat,
+      radial-gradient(circle at 6px 8px, transparent 5px, #000 5.5px) top/12px 8px repeat-x,
+      radial-gradient(circle at 6px 0px, transparent 5px, #000 5.5px) bottom/12px 8px repeat-x;
+  }
+  .r-head{text-align:center;margin-bottom:14px}
+  .r-head .shop{font-weight:600;font-size:15px;letter-spacing:.08em}
+  .r-head .ar{font-size:12px;color:var(--ink-faint);margin-top:2px}
+  .r-head .meta{font-size:11px;color:var(--ink-faint);margin-top:6px}
+  .rule{border-top:1px dashed var(--line);margin:12px 0}
+  .r-line{display:flex;justify-content:space-between;gap:8px}
+  .r-line .l{flex:1}
+  .r-line .qty{color:var(--ink-faint);font-size:11px}
+  .r-line .amt{white-space:nowrap;font-weight:500}
+  .r-total{display:flex;justify-content:space-between;font-weight:600;font-size:15px;margin-top:4px}
+  .r-annual{display:flex;justify-content:space-between;font-weight:600;font-size:17px;margin-top:6px}
+  .r-sub{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    color:var(--ink-faint);font-size:12px;margin-top:3px;padding-inline-start:12px;
+  }
+  .r-total + .r-sub{margin-top:7px}
+  .stamp{
+    margin:18px auto 6px;width:fit-content;max-width:100%;
+    border:3px solid var(--stamp);color:var(--stamp);
+    padding:8px 16px;font-weight:600;font-size:14px;letter-spacing:.1em;text-align:center;
+    transform:rotate(-4deg);border-radius:4px;text-transform:uppercase;opacity:.92;
+  }
+  .stamp small{display:block;font-weight:400;font-size:10px;letter-spacing:.06em;margin-top:2px}
+  .barcode{
+    height:38px;margin:16px auto 4px;width:82%;
+    background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 7px,transparent 7px 9px,var(--ink) 9px 10px,transparent 10px 13px);
+  }
+  .r-foot{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:8px}
+  .pulse{animation:pop .35s ease}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.03)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+  footer{margin-top:56px;font-size:13px;color:rgba(246,244,238,.45);font-family:'IBM Plex Mono',monospace;line-height:1.6}
+
+  /* ---------- hints + share ---------- */
+  .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .cta-grid > .cta-card:first-child{position:sticky;top:28px}
+  @media (max-width:900px){.cta-grid > .cta-card:first-child{position:static}}
+  @media (max-width:900px){.cta-grid{grid-template-columns:1fr}}
+  .cta-card{
+    background:rgba(246,244,238,.05);border:1px solid rgba(246,244,238,.14);
+    border-radius:12px;padding:22px;
+  }
+  .cta-card h3{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:6px;
+  }
+  .cta-card p{font-size:14px;color:rgba(246,244,238,.65);line-height:1.55;margin-bottom:16px}
+  .hint-input{
+    width:100%;background:rgba(246,244,238,.06);border:1px solid rgba(246,244,238,.18);
+    border-radius:10px;padding:12px 14px;color:var(--paper);outline:none;
+    font-family:'Space Grotesk',sans-serif;font-size:14px;resize:none;
+  }
+  .hint-input:focus-visible{border-color:var(--gold)}
+  .hint-input::placeholder{color:rgba(246,244,238,.35)}
+  .hint-meta{display:flex;gap:10px;margin-top:10px}
+  .hint-name{flex:1}
+  .hint-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(246,244,238,.4);text-align:end;margin-top:6px}
+  .btn{
+    background:var(--paper);color:var(--bg);border:none;border-radius:10px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
+    padding:12px 18px;cursor:pointer;margin-top:12px;
+  }
+  .btn:hover{background:#fff}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .form-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:10px;color:var(--gold)}
+  .share-btns{display:flex;gap:10px;flex-wrap:wrap}
+  .share-btn{
+    flex:1;min-width:120px;background:rgba(246,244,238,.06);border:1px solid rgba(246,244,238,.22);
+    color:var(--paper);border-radius:10px;padding:13px 10px;cursor:pointer;text-align:center;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.04em;
+  }
+  .share-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .share-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .stubs{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+  .stub{
+    background:var(--paper);color:var(--ink);border-radius:2px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.5;
+    padding:12px 14px;position:relative;
+    -webkit-mask:
+      linear-gradient(#000 0 0) center/100% calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 5px 6px, transparent 4px, #000 4.5px) top/10px 6px repeat-x,
+      radial-gradient(circle at 5px 0px, transparent 4px, #000 4.5px) bottom/10px 6px repeat-x;
+    mask:
+      linear-gradient(#000 0 0) center/100% calc(100% - 10px) no-repeat,
+      radial-gradient(circle at 5px 6px, transparent 4px, #000 4.5px) top/10px 6px repeat-x,
+      radial-gradient(circle at 5px 0px, transparent 4px, #000 4.5px) bottom/10px 6px repeat-x;
+  }
+  .stub .who{color:var(--ink-faint);font-size:11px;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+
+  /* ---------- language toggle + RTL ---------- */
+  .lang-toggle{
+    position:absolute;top:0;inset-inline-end:0;display:flex;
+    border:1px solid rgba(246,244,238,.22);border-radius:9px;overflow:hidden;
+  }
+  .lang-toggle button{
+    background:transparent;border:none;color:rgba(246,244,238,.7);cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 13px;letter-spacing:.04em;
+  }
+  .lang-toggle button.active{background:var(--paper);color:var(--bg);font-weight:600}
+  .lang-toggle button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  header{position:relative}
+
+  [dir=rtl] body, [dir=rtl] .wrap{font-family:'IBM Plex Sans Arabic','Space Grotesk',system-ui,sans-serif}
+  [dir=rtl] h1,[dir=rtl] h2,[dir=rtl] .cat-name{font-family:'IBM Plex Sans Arabic',sans-serif}
+  [dir=rtl] .receipt,[dir=rtl] .stub,[dir=rtl] .commute-card,[dir=rtl] .hint,[dir=rtl] .cc-note,
+  [dir=rtl] .eyebrow,[dir=rtl] .step,[dir=rtl] footer,[dir=rtl] .pin-btn,[dir=rtl] .mode-switch button,
+  [dir=rtl] .share-btn,[dir=rtl] .btn,[dir=rtl] .form-msg,[dir=rtl] .lang-toggle button,
+  [dir=rtl] .cta-card h3,[dir=rtl] .commute-card h3{
+    font-family:'IBM Plex Sans Arabic','IBM Plex Mono',monospace;
+  }
+  [dir=rtl] .eyebrow,[dir=rtl] .step{letter-spacing:0}
+  #map{direction:ltr}   /* Leaflet controls stay LTR */
+
+  .demo-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:10px;
+  }
+  [dir=rtl] .demo-tag{letter-spacing:0;font-family:'IBM Plex Sans Arabic',sans-serif}
+  .cc-edit{padding:3px 6px;font-size:13px}
+  #cc-min{width:7ch}
+  #cc-km{width:8.5ch}
+  #cc-kmpl{width:7ch}
+  #mobile-bar{
+    position:fixed;bottom:0;left:0;right:0;z-index:1200;display:none;
+    justify-content:space-between;align-items:center;gap:14px;
+    padding:13px 20px calc(13px + env(safe-area-inset-bottom));
+    background:var(--paper);color:var(--ink);
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;
+    box-shadow:0 -8px 24px rgba(0,0,0,.35);
+    transform:translateY(110%);transition:transform .25s ease;
+  }
+  #mobile-bar.show{transform:translateY(0)}
+  @media (max-width:900px){#mobile-bar{display:flex}}
+  @media (prefers-reduced-motion:reduce){#mobile-bar{transition:none}}
+  [dir=rtl] #mobile-bar span:first-child{font-family:'IBM Plex Sans Arabic',sans-serif}
+
+  .pin-emoji{font-size:26px;line-height:26px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+  .station-dot{border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .leaflet-tooltip.stn-label{
+    border:none;box-shadow:0 1px 3px rgba(0,0,0,.35);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;
+    letter-spacing:.03em;padding:2px 6px;border-radius:4px;white-space:nowrap;
+  }
+  /* label background follows its metro line colour */
+  .stn-label.line-1{background:#2A6FB0;color:#fff}
+  .stn-label.line-2{background:#C13A2E;color:#fff}
+  .stn-label.line-3{background:#E07B2A;color:#231404}
+  .stn-label.line-4{background:#E0B62A;color:#241C02}
+  .stn-label.line-5{background:#2E8B57;color:#fff}
+  .stn-label.line-6{background:#7B4FA0;color:#fff}
+  .leaflet-tooltip.stn-label::before{display:none}
+  .labels-off .leaflet-tooltip.stn-label{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button id="lang-en" class="active">EN</button>
+      <button id="lang-ar">عربي</button>
+    </div>
+    <div class="eyebrow"><a class="eyebrow" href="http://asaad101.sa">Asaad</a></div>
+    <h1 data-i18n="title">Riyadh Lifestyle Calculator</h1>
+    <p class="sub" data-i18n="heroSub">1. Pin Your Commute. 2. Set Your Operational Costs. 3. Get The Receipt!</p>
+  </header>
+
+  <!-- ============ 1. COMMUTE ============ -->
+  <section>
+    <div class="step" data-i18n="step1">Step 01</div>
+    <h2 data-i18n="commuteTitle">The Commute</h2>
+    <p class="sub" data-i18n="commuteSub">Drop your home and work pins. We estimate peak-hour driving between neighborhoods, and what the same trip looks like if you park at the nearest metro station and ride in.</p>
+
+    <div class="commute-grid">
+      <div>
+        <div class="pin-btns">
+          <button class="pin-btn active" id="btn-home" data-i18n="btnHome">&#127968; Set home</button>
+          <button class="pin-btn" id="btn-work" data-i18n="btnWork">&#128188; Set work</button>
+          <button class="pin-btn" id="btn-clear" data-i18n="btnClear">Clear pins</button>
+        </div>
+        <div id="map"></div>
+        <div class="mode-switch" role="group" aria-label="Commute mode">
+          <button id="mode-drive" class="active" data-i18n="modeDrive">&#128663; Drive the whole way</button>
+          <button id="mode-metro" data-i18n="modeMetro">&#128649; Park &amp; ride the metro</button>
+        </div>
+      </div>
+
+      <div class="commute-card">
+        <h3 data-i18n="cardOptions">Both options</h3>
+        <div id="commute-body" data-i18n="commutePrompt">Click the map to drop your home pin, then your work pin. No data is retained on this static html page.</div>
+        <div class="cc-note" data-i18n="commuteNote">Peak-hour speeds and station coordinates are suggested values. Edit them freely.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. HABITS + 3. RECEIPT ============ -->
+  <section id="opex-section">
+    <div class="step" data-i18n="step2">Step 02</div>
+    <h2 data-i18n="opexTitle">The OPEX</h2>
+    <p class="sub" data-i18n="opexSub">Your own operational costs, per month.</p>
+
+    <div class="grid">
+      <div class="controls">
+        <div class="field rent-field">
+          <label class="name" for="rent"><span data-i18n="rentLabel">Annual rent</span> <span class="val" id="v-rent-src">set a home pin</span></label>
+          <div class="rent-row">
+            <input type="number" id="rent" value="70000" min="0" step="1000">
+            <span data-i18n="rentUnit">SAR / year</span>
+          </div>
+          <div class="hint rent-ctx" data-i18n="rentCtx">Area averages &asymp; a family apartment (3BR). Adjust the number to your actual place.</div>
+          <div class="hint" id="rent-hint"></div>
+          <button class="reset-rent" id="reset-rent" hidden></button>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_groceries">Groceries</span> <span class="val" id="v-groceries">6 runs / month</span></label>
+          <input type="range" id="groceries" min="0" max="30" value="6">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-groceries" value="250"> <span data-i18n="hint_groceries">SAR per run, before you reach the snacks aisle</span></div>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_delivery">Delivery apps</span> <span class="val" id="v-delivery">4 orders / week</span></label>
+          <input type="range" id="delivery" min="0" max="21" value="4">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-delivery" value="55"> <span data-i18n="hint_delivery">SAR per order, fees included, we both know it's more</span></div>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_eatout">Eating out</span> <span class="val" id="v-eatout">2 meals / week</span></label>
+          <input type="range" id="eatout" min="0" max="14" value="2">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-eatout" value="130"> <span data-i18n="hint_eatout">SAR per outing</span></div>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_padel">Sports/Padel</span> <span class="val" id="v-padel">4 sessions / month</span></label>
+          <input type="range" id="padel" min="0" max="20" value="4">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-padel" value="85"> <span data-i18n="hint_padel">SAR per session (court split + the juice after)</span></div>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_subs">Subscriptions</span> <span class="val" id="v-subs">6 services</span></label>
+          <input type="range" id="subs" min="0" max="15" value="6">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-subs" value="45"> <span data-i18n="hint_subs">SAR each per month. Yes, the one you forgot counts.</span></div>
+        </div>
+
+        <div class="field">
+          <label class="name"><span data-i18n="cat_shop">Shopping</span> <span class="val" id="v-shop">2 orders / month</span></label>
+          <input type="range" id="shop" min="0" max="15" value="2">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-shop" value="180"> <span data-i18n="hint_shop">SAR per "it was on sale"</span></div>
+        </div>
+
+        <div id="custom-list"></div>
+        <button class="add-cat" id="add-cat" data-i18n="addCat">+ Add your own category</button>
+      </div>
+
+      <div class="receipt-holder">
+        <div class="receipt" id="receipt">
+          <div class="r-head">
+            <div class="shop" data-i18n="rShop">ASAAD101.SA</div>
+            <div class="ar" data-i18n="rShopSub">فاتورة حياة الرياض</div>
+            <div class="meta" data-i18n="rMeta">RIYADH BRANCH &bull; OPEN 24/7<br>CASHIER: YOUR OWN DECISIONS</div>
+          </div>
+          <div class="rule"></div>
+          <div id="lines"></div>
+          <div class="rule"></div>
+          <div class="r-total"><span data-i18n="rMonthly">MONTHLY TOTAL</span><span id="t-month">0 SAR</span></div>
+          <div class="r-sub"><span data-i18n="rRent">Rent</span><span id="t-rent">0 SAR</span></div>
+          <div class="r-sub"><span data-i18n="rOpex">Operational costs</span><span id="t-opex">0 SAR</span></div>
+          <div class="r-annual"><span data-i18n="rAnnual">ANNUAL TOTAL</span><span id="t-year">0 SAR</span></div>
+          <div class="stamp" id="stamp">CALCULATING<small>please hold</small></div>
+          <div class="barcode"></div>
+          <div class="r-foot" data-i18n="rFoot">NO REFUNDS ON LIFESTYLE CHOICES<br>screenshot it &bull; then settle the bill below</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. HINTS + SHARE ============ -->
+  <section>
+    <div class="step" data-i18n="step3">Step 03</div>
+    <h2 data-i18n="ctaTitle">Giving Back</h2>
+    <p class="sub" data-i18n="ctaSub">Found this tool useful? Two ways to pay it forward.</p>
+
+    <div class="cta-grid">
+      <div class="cta-card">
+        <h3 data-i18n="shareTitle">Share the tool</h3>
+        <p data-i18n="shareCopy">Know someone whose delivery habit needs an intervention? Share this tool with them.</p>
+        <div class="share-btns">
+          <button class="share-btn" id="share-wa">WhatsApp</button>
+          <button class="share-btn" id="share-x">X</button>
+          <button class="share-btn" id="share-copy" data-i18n="btnCopy">Copy link</button>
+        </div>
+        <div class="form-msg" id="share-msg" role="status"></div>
+      </div>
+
+      <div class="cta-card">
+        <h3 data-i18n="hintTitle">Leave a Riyadh hint / feedback</h3>
+        <p data-i18n="hintCopy">Share a line of hard-earned Riyadh wisdom, or tell me what's wrong with this page. Numbers that look off, a neighbourhood I missed, anything. Approved hints get printed below.</p>
+        <textarea class="hint-input" id="hint-text" rows="2" maxlength="140" data-i18n-ph="hintPh"
+          placeholder="A Riyadh hint, or tell me what's broken here."></textarea>
+        <div class="hint-meta">
+          <input class="hint-input hint-name" id="hint-name" type="text" maxlength="30" data-i18n-ph="namePh" placeholder="Name or alias (optional)">
+        </div>
+        <div class="hint-count"><span id="hint-chars">0</span>/140</div>
+        <!-- honeypot -->
+        <input type="text" id="hint-hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button class="btn" id="hint-send" data-i18n="sendBtn">Send it in</button>
+        <div class="form-msg" id="hint-msg" role="status"></div>
+
+        <div class="stubs" id="stubs"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer data-i18n="footerText">
+    Averages are Riyadh street estimates. Adjust the prices to your reality. Share Feedback to make this better! <br>
+    Built for fun in collaboration with Claude Code!
+  </footer>
+</div>
+
+<div id="mobile-bar">
+  <span data-i18n="rMonthly">MONTHLY TOTAL</span>
+  <span id="bar-month">0 SAR</span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* =====================================================================
+   SAMPLE DATA — REPLACE WITH REAL VALUES
+   ===================================================================== */
+
+// Peak-hour average speeds per neighborhood (km/h). Lower = more congested.
+const NEIGHBORHOODS = [
+  // North Riyadh — rent = average ANNUAL rent (SAR), user-supplied
+  {name:'Al-Malqa',        ar:'الملقا',       lat:24.805, lng:46.600, peakSpeed:26, rent:80000},
+  {name:'Al-Narjis',       ar:'النرجس',       lat:24.855, lng:46.645, peakSpeed:28, rent:65000},
+  {name:'Al-Yasmin',       ar:'الياسمين',     lat:24.825, lng:46.640, peakSpeed:27, rent:70000},
+  {name:'Al-Arid',         ar:'العارض',       lat:24.890, lng:46.680, peakSpeed:30, rent:60000},
+  {name:'Al-Aqiq / KAFD',  ar:'العقيق',       lat:24.770, lng:46.632, peakSpeed:20, rent:70000},
+  {name:'Al-Qirawan',      ar:'القيروان',     lat:24.855, lng:46.590, peakSpeed:29, rent:70000},
+  {name:'Hittin',          ar:'حطين',         lat:24.775, lng:46.590, peakSpeed:28, rent:85000},
+  {name:'Al-Sahafa',       ar:'الصحافة',      lat:24.810, lng:46.655, peakSpeed:25, rent:75000},
+  {name:'Al-Sulaimaniya',  ar:'السليمانية',   lat:24.708, lng:46.700, peakSpeed:20, rent:65000},
+  {name:'Al-Olaya',        ar:'العليا',       lat:24.695, lng:46.685, peakSpeed:18, rent:80000},
+  {name:'Al-Wadi',         ar:'الوادي',       lat:24.775, lng:46.690, peakSpeed:24, rent:60000},
+  {name:'Al-Nafal',        ar:'النفل',        lat:24.762, lng:46.680, peakSpeed:24, rent:70000},
+  {name:'Al-Masif',        ar:'المصيف',       lat:24.745, lng:46.680, peakSpeed:23, rent:65000},
+  {name:'Al-Murooj',       ar:'المروج',       lat:24.750, lng:46.655, peakSpeed:22, rent:80000},
+  {name:'Al-Taawun',       ar:'التعاون',      lat:24.760, lng:46.700, peakSpeed:23, rent:80000},
+  {name:'Al-Falah',        ar:'الفلاح',       lat:24.790, lng:46.700, peakSpeed:26, rent:55000},
+  {name:'Al-Mughrizat',    ar:'المغرزات',     lat:24.760, lng:46.715, peakSpeed:23, rent:85000},
+  {name:'Al-Nuzha',        ar:'النزهة',       lat:24.740, lng:46.705, peakSpeed:22, rent:75000},
+  {name:'Al-Rabi',         ar:'الربيع',       lat:24.795, lng:46.665, peakSpeed:26, rent:70000},
+  {name:'Al-Nakheel',      ar:'النخيل',       lat:24.755, lng:46.635, peakSpeed:24, rent:90000},
+  {name:'Al-Nada',         ar:'الندى',        lat:24.790, lng:46.720, peakSpeed:27, rent:70000},
+  {name:'Al-Wurud',        ar:'الورود',       lat:24.720, lng:46.665, peakSpeed:21, rent:60000},
+  {name:'Al-Mohammadiyah', ar:'المحمدية',     lat:24.740, lng:46.630, peakSpeed:23, rent:120000},
+  {name:'Al-Ghadir',       ar:'الغدير',       lat:24.775, lng:46.710, peakSpeed:24, rent:90000},
+  {name:'King Fahd Dist.', ar:'الملك فهد',    lat:24.744, lng:46.652, peakSpeed:22, rent:90000},
+  {name:'King Abdullah D.',ar:'الملك عبدالله',lat:24.755, lng:46.740, peakSpeed:26, rent:60000},
+
+  // Outside the rent dataset — commute only (rent:null)
+  {name:'Al-Murabba',      ar:'المربع',       lat:24.665, lng:46.710, peakSpeed:22, rent:null},
+  {name:'Al-Malaz',        ar:'الملز',        lat:24.665, lng:46.735, peakSpeed:24, rent:null},
+  {name:'Al-Rawdah',       ar:'الروضة',       lat:24.720, lng:46.775, peakSpeed:28, rent:null},
+  {name:'Al-Hamra',        ar:'الحمراء',      lat:24.745, lng:46.760, peakSpeed:29, rent:null},
+  {name:'Qurtubah',        ar:'قرطبة',        lat:24.795, lng:46.755, peakSpeed:30, rent:null},
+  {name:'Al-Munsiyah',     ar:'المونسية',     lat:24.815, lng:46.790, peakSpeed:32, rent:null},
+  {name:'Ishbiliyah',      ar:'اشبيلية',      lat:24.760, lng:46.800, peakSpeed:30, rent:null},
+  {name:'Al-Naseem',       ar:'النسيم',       lat:24.700, lng:46.820, peakSpeed:30, rent:null},
+  {name:'Al-Shifa',        ar:'الشفا',        lat:24.560, lng:46.720, peakSpeed:32, rent:null},
+  {name:'Laban',           ar:'لبن',          lat:24.610, lng:46.560, peakSpeed:30, rent:null},
+  {name:'Irqah',           ar:'عرقة',         lat:24.685, lng:46.575, peakSpeed:28, rent:null},
+  {name:'Diriyah',         ar:'الدرعية',      lat:24.735, lng:46.575, peakSpeed:30, rent:null},
+];
+
+// Riyadh Metro stations. SAMPLE coordinates — replace with the real ones.
+// line: 1=Blue, 2=Red, 3=Orange, 4=Yellow, 5=Green, 6=Purple
+const METRO_STATIONS = [
+  {name:'KAFD',               line:1, lat:24.767, lng:46.638},
+  {name:'Al Murooj',          line:1, lat:24.757, lng:46.646},
+  {name:'King Fahd District', line:1, lat:24.744, lng:46.652},
+  {name:'STC',                line:1, lat:24.727, lng:46.662},
+  {name:'Al Wurud',           line:1, lat:24.715, lng:46.668},
+  {name:'Al Urubah',          line:1, lat:24.703, lng:46.675},
+  {name:'King Fahd Library',  line:1, lat:24.682, lng:46.688},
+  {name:'National Museum',    line:1, lat:24.647, lng:46.710},
+  {name:'Qasr Al Hokm',       line:1, lat:24.630, lng:46.714},
+  {name:'Al Batha',           line:1, lat:24.618, lng:46.720},
+  {name:'King Saud University', line:2, lat:24.715, lng:46.622},
+  {name:'King Salman Park',     line:2, lat:24.722, lng:46.700},
+  {name:'Al Hamra Stn',         line:2, lat:24.727, lng:46.762},
+  {name:'Khurais Road',         line:2, lat:24.726, lng:46.795},
+  {name:'Western Station',    line:3, lat:24.618, lng:46.585},
+  {name:'Al Jarradiyah',      line:3, lat:24.622, lng:46.660},
+  {name:'Jarir District',     line:3, lat:24.658, lng:46.742},
+  {name:'Al Rajhi Mosque',    line:3, lat:24.678, lng:46.828},
+  {name:'Naseem East',        line:3, lat:24.690, lng:46.852},
+  {name:'SABIC',              line:4, lat:24.772, lng:46.650},
+  {name:'Ar Rabi',            line:4, lat:24.795, lng:46.662},
+  {name:'PNU Gate',           line:4, lat:24.845, lng:46.718},
+  {name:'Airport T1-2',       line:4, lat:24.960, lng:46.700},
+  {name:'Ministry of Defense', line:5, lat:24.686, lng:46.708},
+  {name:'Ministry of Finance', line:5, lat:24.668, lng:46.712},
+  {name:'Granadia',           line:6, lat:24.712, lng:46.788},
+  {name:'As Sulimaniyah E',   line:6, lat:24.716, lng:46.720},
+];
+
+const LINE_COLORS = {1:'#2A6FB0',2:'#C13A2E',3:'#E07B2A',4:'#E0B62A',5:'#2E8B57',6:'#7B4FA0'};
+
+/* ---- Riyadh hints ----
+   Intake: Web3Forms (https://web3forms.com) — create a free access key,
+   paste it below, submissions arrive in your email.
+   Moderation: copy the good ones into APPROVED_HINTS and redeploy. */
+const WEB3FORMS_KEY = '27a273b4-2530-41c2-915d-93c8c5d822b6';
+const APPROVED_HINTS = [
+  {text:'محلات الستائر اللي بعيده عن سنتر شمال الرياض اسعارها وجودتها تكون افضل', who:'KHALID'},
+  // {text:'', who:''},
+];
+
+// Commute constants
+const KM_PER_LITER   = 15;
+const FUEL_PRICE     = 2.33;   // SAR per liter
+const WORKING_DAYS   = 22;     // per month
+const ROAD_FACTOR    = 1.3;    // straight-line km -> road km
+const METRO_SPEED    = 45;     // km/h average incl. stops
+const METRO_OVERHEAD = 8;      // min: parking + platform wait
+const WALK_SPEED     = 4.8;    // km/h
+const METRO_PASS     = 140;    // SAR — 30-Day Standard Pass
+// Last mile: in Riyadh heat nobody walks far. Beyond WALK_MAX_MIN it's a taxi.
+const WALK_MAX_MIN   = 5;      // minutes you'd actually walk
+const TAXI_MIN       = 15;     // SAR, short Uber/Careem hop (min fare territory)
+const TAXI_MAX       = 30;     // SAR, upper end of a short last-mile trip
+const TAXI_SCALE_KM  = 4;      // distance at which the fare reaches TAXI_MAX
+const TAXI_SPEED     = 25;     // km/h door to door
+const TAXI_WAIT      = 4;      // min waiting for the car
+
+// Districts you can actually walk in: shaded paths, sky bridges, sane block sizes.
+const WALKABLE_ZONES = [
+  {name:'KAFD', lat:24.767, lng:46.638, radiusKm:1.4, maxWalkMin:15},
+];
+
+
+/* ===================================================================== */
+
+
+/* =====================================================================
+   TRANSLATIONS — everything lives here. Edit freely.
+   {x} placeholders are filled in by the code; keep them in both languages.
+   ===================================================================== */
+const I18N = {
+en: {
+  eyebrow:'Riyadh &bull; SAR',
+  title:'The Riyadh Lifestyle Calculator',
+  heroSub:'1. Pin Your Commute. 2. Set Your Operational Costs. 3. Get The Receipt!',
+  step1:'Step 01', commuteTitle:'The Commute',
+  commuteSub:'Drop your home and work pins. We estimate peak-hour driving between neighborhoods, and what the same trip looks like if you park at the nearest metro station and ride in.',
+  btnHome:'&#127968; Set home', btnWork:'&#128188; Set work', btnClear:'Clear pins',
+  modeDrive:'&#128663; Drive the whole way', modeMetro:'&#128649; Park &amp; ride the metro',
+  cardOptions:'Both options',
+  commutePrompt:'Click the map to drop your home pin, then your work pin.',
+  commuteNote:'Peak-hour speeds and station coordinates are SAMPLE values. Edit them freely.',
+  step2:'Step 02', opexTitle:'The OPEX',
+  opexSub:'Your Operational Costs per month.',
+  rentLabel:'Annual rent', rentUnit:'SAR / year',
+  avgWord:'avg',
+  cat_groceries:'Groceries', hint_groceries:'SAR per run, before you reach the snacks aisle',
+  cat_delivery:'Delivery apps', hint_delivery:'SAR per order, fees included, we both know it\'s more',
+  cat_eatout:'Eating out', hint_eatout:'SAR per outing',
+  cat_padel:'Padel / sports', hint_padel:'SAR per session (court split + the juice after)',
+  cat_subs:'Subscriptions', hint_subs:'SAR each per month. Yes, the one you forgot counts.',
+  cat_shop:'Shopping', hint_shop:'SAR per "it was on sale"',
+  addCat:'+ Add your own category',
+  rShop:'LIFESTYLE &amp; CO.', rShopSub:'حاسبة المعيشة',
+  rMeta:'RIYADH BRANCH &bull; OPEN 24/7<br>CASHIER: YOUR OWN DECISIONS',
+  rMonthly:'MONTHLY TOTAL', rRent:'Rent', rOpex:'Operational costs', rAnnual:'ANNUAL TOTAL',
+  rFoot:'NO REFUNDS ON LIFESTYLE CHOICES<br>screenshot it &bull; then settle the bill below',
+  step3:'Step 03', ctaTitle:'Giving Back', ctaSub:'Two ways to pay it forward.',
+  shareTitle:'Share the Tool',
+  shareCopy:'Know someone whose spending habit needs an intervention? Share with them the tool.',
+  btnCopy:'Copy link',
+  hintTitle:'Leave a Riyadh hint / feedback',
+  hintCopy:'Share a line of hard-earned Riyadh wisdom, or tell me what\'s wrong with this page. Numbers that look off, a neighbourhood I missed, anything. Approved hints get printed below.',
+  hintPh:'A Riyadh hint, or tell me what\'s broken here.',
+  namePh:'Name or alias (optional)', sendBtn:'Send it in',
+  footerText:'Averages are Riyadh street estimates. Adjust the prices to your reality.<br>Built for fun in collaboration with Claude Code.',
+  // --- dynamic ---
+  sar:'SAR', minUnit:'min',
+  u_groceries:'runs', u_delivery:'orders', u_eatout:'meals', u_padel:'sessions', u_subs:'services', u_shop:'orders',
+  L_groceries:'GROCERIES', L_delivery:'DELIVERY APPS', L_eatout:'EATING OUT', L_padel:'PADEL / SPORTS', L_subs:'SUBSCRIPTIONS', L_shop:'SHOPPING',
+  valWeek:'{q} {u} / week', valMonth:'{q} {u} / month', valSubs:'{q} services', valTimes:'{q} times / month',
+  qtyWk:'{q} {u} /wk @ {p}', qtyMo:'{q} {u} /mo @ {p}',
+  rentLine:'RENT', perYr:'{src}, {amt} / yr', srcYour:'your figure', srcArea:'{name} avg', srcDefault:'default',
+  perMonth:'{amt} / month',
+  rentSrcPrompt:'set a home pin', rentSrcYour:'your figure', rentSrcAvg:'{name} average',
+  noAvg:'{name} — no average on file', useAvgBtn:'Use {name} average ({amt})',
+  commuteDrive:'COMMUTE (DRIVE)', commuteMetro:'COMMUTE (PARK+METRO)',
+  kmMoFuel:'{km} km/mo fuel', passSuffix:' + 30-day pass',
+  nothing:'NOTHING. YOU BUY NOTHING.',
+  v_min_a:'MINIMAL FOOTPRINT', v_min_b:'suspicious. audit pending',
+  v_avg_a:'AVERAGE RIYADH RESIDENT', v_avg_b:'could be worse. it will be',
+  v_vip_a:'DELIVERY APP VIP', v_vip_b:'the drivers know your building',
+  v_enj_a:'CERTIFIED LIFESTYLE ENJOYER', v_enj_b:'your bank app avoids eye contact',
+  v_eco_a:'THE ECONOMY THANKS YOU', v_eco_b:'local businesses mention you in their prayers',
+  homeArea:'Home area', workArea:'Work area',
+  blkDrive:'Drive the whole way', blkMetro:'Park &amp; ride', onReceipt:'ON RECEIPT',
+  peakTime:'Peak-hour time', eachWay:'{m} each way', distance:'Distance',
+  fuelMo:'Fuel / month', totalTime:'Total time',
+  driveTo:'drive to {s}', metroTo:'metro to {s}', walk:'walk last mile', walkLong:'walk (long one)',
+  taxiLeg:'taxi last mile', taxiMo:'Taxi last mile', taxiEachWay:'{lo}&ndash;{hi} {sar} each way',
+  walkableNote:'{zone} is walkable &mdash; shaded paths and sky bridges.',
+  fuelToStation:'Fuel to station', pass30:'30-Day Standard Pass', totalMo:'Total / month',
+  sameStation:'{s} is nearest to both pins', noteWord:'Note',
+  ccChoice:'Cost is only one input. Parking, safety, and arriving without having fought the ring road don\'t show up on a receipt. Pick the mode you\'d actually use.',
+  msgShort:'Give it at least a full sentence.', msgNoKey:'Form not connected yet — add the Web3Forms key.',
+  msgSending:'Sending...', msgOk:'Got it. Good hints get printed below.', msgFail:'Something went wrong. Try again in a minute.',
+  anon:'anonymous', catPh:'Name it. Cigarettes? Cats? Car payment?', unnamed:'UNNAMED', delCat:'Remove category',
+  shareText:'I just got my Riyadh Lifestyle Receipt. No refunds on lifestyle choices. Get yours:',
+  linkCopied:'Link copied. Deploy responsibly.',
+  demoTag:'Demo route &bull; drag the pins or drop your own',
+  rentCtx:'Area averages &asymp; a family apartment (3BR). Adjust the number to your actual place.',
+  kmSuffix:'km each way',
+  fuelEcon:'Fuel economy', kmplSuffix:'km / L',
+},
+ar: {
+  eyebrow:'',
+  title:'حاسبة المعيشة في الرياض',
+  heroSub:'حدّد مشوارك وتكاليفك الشهرية واستلم فاتورة مفصّلة.',
+  step1:'الخطوة 01', commuteTitle:'المشوار',
+  commuteSub:'ضع دبوس المنزل ودبوس العمل. نقدّر وقت القيادة في الذروة بين الأحياء، وكيف يبدو نفس المشوار لو ركنت عند أقرب محطة مترو وركبت منها.',
+  btnHome:'&#127968; حدد المنزل', btnWork:'&#128188; حدد العمل', btnClear:'مسح الدبابيس',
+  modeDrive:'&#128663; القيادة كامل الطريق', modeMetro:'&#128649; اركن واركب المترو',
+  cardOptions:'الخياران',
+  commutePrompt:'اضغط على الخريطة لوضع دبوس المنزل، ثم دبوس العمل.',
+  commuteNote:'سرعات الذروة وإحداثيات المحطات قيم تقريبية للتجربة. عدّلها في أعلى الكود.',
+  step2:'الخطوة 02', opexTitle:'المصاريف التشغيلية',
+  opexSub:'تكلفة تشغيل نفسك شهرياً. كن صادقاً، الفاتورة تُطبع وأنت تسحب.',
+  rentLabel:'الإيجار السنوي', rentUnit:'ريال / سنة',
+  avgWord:'بمعدل',
+  cat_groceries:'المقاضي', hint_groceries:'ريال للمشوار الواحد، قبل ما توصل ممر السناكات',
+  cat_delivery:'تطبيقات التوصيل', hint_delivery:'ريال للطلب شامل الرسوم، وكلنا نعرف أنه أكثر',
+  cat_eatout:'الأكل برا', hint_eatout:'ريال للطلعة الواحدة',
+  cat_padel:'بادل / رياضة', hint_padel:'ريال للجلسة (قسمة الملعب + العصير بعدها)',
+  cat_subs:'الاشتراكات', hint_subs:'ريال لكل خدمة شهرياً. نعم، اللي نسيتها تنحسب.',
+  cat_shop:'التسوق', hint_shop:'ريال لكل "كان عليه تخفيض"',
+  addCat:'+ أضف فئة من عندك',
+  rShop:'فاتورة نمط الحياة', rShopSub:'LIFESTYLE &amp; CO.',
+  rMeta:'فرع الرياض &bull; مفتوح 24/7<br>الكاشير: قراراتك أنت',
+  rMonthly:'الإجمالي الشهري', rRent:'الإيجار', rOpex:'التكاليف التشغيلية', rAnnual:'الإجمالي السنوي',
+  rFoot:'لا استرداد لخيارات نمط الحياة<br>صوّرها &bull; ثم سدّد الفاتورة بالأسفل',
+  step3:'الخطوة 03', ctaTitle:'المساهمة', ctaSub:'إذا الأداة نفعتك، ساعدني بشيئين: ملاحظاتك، ومشاركتها مع أحد يحتاجها.',
+  shareTitle:'شارك الحاسبة',
+  shareCopy:'تعرف أحداً عاداته في التوصيل تحتاج تدخلاً؟ أرسل له فاتورته.',
+  btnCopy:'انسخ الرابط',
+  hintTitle:'اترك نصيحة عن الرياض / ملاحظة',
+  hintCopy:'شارك سطراً من حكمة الرياض المكتسبة بالتجربة، أو قل لي وش الخطأ في الصفحة. أرقام غير دقيقة، حي ناقص، أي شيء. النصائح المعتمدة تُطبع بالأسفل.',
+  hintPh:'نصيحة عن الرياض، أو قل لي وش الخربان هنا.',
+  namePh:'الاسم أو اللقب (اختياري)', sendBtn:'أرسلها',
+  footerText:'المتوسطات تقديرات من شوارع الرياض. عدّل الأسعار على واقعك. شاركنا رأيك لتحسين التجربة.<br>بُنيت بالتعاون مع كلاود كود.',
+  // --- dynamic ---
+  sar:'ريال', minUnit:'دقيقة',
+  u_groceries:'مشاوير', u_delivery:'طلبات', u_eatout:'وجبات', u_padel:'جلسات', u_subs:'خدمات', u_shop:'طلبات',
+  L_groceries:'المقاضي', L_delivery:'تطبيقات التوصيل', L_eatout:'الأكل برا', L_padel:'بادل / رياضة', L_subs:'الاشتراكات', L_shop:'التسوق',
+  valWeek:'{q} {u} / أسبوع', valMonth:'{q} {u} / شهر', valSubs:'{q} خدمات', valTimes:'{q} مرة / شهر',
+  qtyWk:'{q} {u} /أسبوع @ {p}', qtyMo:'{q} {u} /شهر @ {p}',
+  rentLine:'الإيجار', perYr:'{src}، {amt} / سنة', srcYour:'رقمك أنت', srcArea:'متوسط {name}', srcDefault:'افتراضي',
+  perMonth:'{amt} / شهر',
+  rentSrcPrompt:'ضع دبوس المنزل أولاً', rentSrcYour:'رقمك أنت', rentSrcAvg:'متوسط {name}',
+  noAvg:'{name} — لا يوجد متوسط مسجل', useAvgBtn:'استخدم متوسط {name} ({amt})',
+  commuteDrive:'المشوار (قيادة)', commuteMetro:'المشوار (ركن + مترو)',
+  kmMoFuel:'{km} كم/شهر وقود', passSuffix:' + اشتراك 30 يوم',
+  nothing:'لا شيء. أنت لا تشتري شيئاً.',
+  v_min_a:'بصمة مالية ضئيلة', v_min_b:'مريب. التدقيق قادم',
+  v_avg_a:'ساكن رياض متوسط', v_avg_b:'ممكن أسوأ. وبيصير',
+  v_vip_a:'عميل توصيل VIP', v_vip_b:'المناديب يعرفون عمارتك',
+  v_enj_a:'مستمتع معتمد بنمط الحياة', v_enj_b:'تطبيق البنك يتجنب النظر في عينك',
+  v_eco_a:'الاقتصاد يشكرك', v_eco_b:'المحلات تذكرك في دعواتها',
+  homeArea:'حي المنزل', workArea:'حي العمل',
+  blkDrive:'القيادة كامل الطريق', blkMetro:'اركن واركب', onReceipt:'على الفاتورة',
+  peakTime:'وقت الذروة', eachWay:'{m} للاتجاه الواحد', distance:'المسافة',
+  fuelMo:'الوقود / شهر', totalTime:'الوقت الإجمالي',
+  driveTo:'قيادة إلى {s}', metroTo:'مترو إلى {s}', walk:'مشي آخر مسافة', walkLong:'مشي (مسافة طويلة)',
+  taxiLeg:'تاكسي آخر مسافة', taxiMo:'تاكسي آخر مسافة', taxiEachWay:'{lo}&ndash;{hi} {sar} للاتجاه',
+  walkableNote:'{zone} منطقة قابلة للمشي &mdash; ممرات مظللة وجسور علوية.',
+  fuelToStation:'وقود إلى المحطة', pass30:'اشتراك 30 يوم القياسي', totalMo:'الإجمالي / شهر',
+  sameStation:'{s} هي الأقرب للدبوسين', noteWord:'ملاحظة',
+  ccChoice:'التكلفة مدخل واحد فقط. المواقف والأمان والوصول بدون معركة الدائري لا تظهر على الفاتورة. اختر الوسيلة التي ستستخدمها فعلاً.',
+  msgShort:'اكتبها جملة كاملة على الأقل.', msgNoKey:'النموذج غير مفعّل بعد.',
+  msgSending:'جارٍ الإرسال...', msgOk:'وصلت. النصائح الجيدة تُطبع بالأسفل.', msgFail:'صار خطأ. جرّب بعد دقيقة.',
+  anon:'مجهول', catPh:'سمّها. دخان؟ قطط؟ قسط السيارة؟', unnamed:'بدون اسم', delCat:'حذف الفئة',
+  shareText:'استلمت للتو فاتورة نمط حياتي في الرياض. لا استرداد لخيارات نمط الحياة. استلم فاتورتك:',
+  linkCopied:'تم نسخ الرابط. انشره بمسؤولية.',
+  demoTag:'مسار تجريبي &bull; اسحب الدبابيس أو ضع دبابيسك',
+  rentCtx:'متوسطات الأحياء &asymp; شقة عائلية (3 غرف). عدّل الرقم على سكنك الفعلي.',
+  kmSuffix:'كم للاتجاه',
+  fuelEcon:'كفاءة الوقود', kmplSuffix:'كم / لتر',
+}};
+
+let LANG = 'en';
+const t   = k => I18N[LANG][k] ?? I18N.en[k] ?? k;
+const tpl = (k, v) => t(k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
+const nbName = nb => LANG === 'ar' ? nb.ar : nb.name;
+
+const WEEKS = 4.33;
+const fmt = n => Math.round(n).toLocaleString('en-US') + ' ' + t('sar');
+const mins = n => Math.round(n) + ' ' + t('minUnit');
+
+function hav(a, b){
+  const R = 6371, toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat/2)**2 +
+            Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+const nearest = (pt, list) =>
+  list.reduce((best, x) => hav(pt, x) < hav(pt, best) ? x : best, list[0]);
+
+const items = [
+  {id:'groceries', per:'month'},
+  {id:'delivery',  per:'week'},
+  {id:'eatout',    per:'week'},
+  {id:'padel',     per:'month'},
+  {id:'subs',      per:'month'},
+  {id:'shop',      per:'month'},
+];
+
+
+// verdict on annual spend, no salary involved
+function verdict(opexAnnual, delivery){
+  if (opexAnnual < 20000) return [t('v_min_a'), t('v_min_b')];
+  if (opexAnnual < 45000) return [t('v_avg_a'), t('v_avg_b')];
+  if (opexAnnual < 90000) return delivery >= 7
+      ? [t('v_vip_a'), t('v_vip_b')]
+      : [t('v_enj_a'), t('v_enj_b')];
+  return [t('v_eco_a'), t('v_eco_b')];
+}
+
+const commute = { home:null, work:null, result:null, mode:'drive', demo:true, over:{km:null, min:null}, kmpl:KM_PER_LITER };
+const rent = { edited:false, areaNb:null };
+
+function rentMonthly(){
+  const annual = +document.getElementById('rent').value || 0;
+  return { monthly: annual / 12, annual };
+}
+
+function renderRentHint(){
+  const r = rentMonthly();
+  const hint = document.getElementById('rent-hint');
+  if (r.annual <= 0){ hint.textContent = ''; return; }
+  hint.innerHTML = tpl('perMonth', {amt: fmt(r.monthly)});
+}
+
+function calc(){
+  let monthly = 0, rentM = 0, rows = '';
+
+  // rent first — it's the biggest line on any real receipt
+  const r = rentMonthly();
+  renderRentHint();
+  const rentRounded = Math.round(r.monthly);
+  if (rentRounded > 0){
+    monthly += rentRounded;
+    rentM = rentRounded;
+    const src = rent.edited ? t('srcYour') : (rent.areaNb ? tpl('srcArea', {name: nbName(rent.areaNb)}) : t('srcDefault'));
+    rows += `<div class="r-line">
+      <span class="l">${t('rentLine')}<br><span class="qty">${tpl('perYr', {src, amt: Math.round(r.annual).toLocaleString('en-US')})}</span></span>
+      <span class="amt">${fmt(rentRounded)}</span></div>`;
+  }
+
+  for (const it of items){
+    const qty   = +document.getElementById(it.id).value;
+    const price = +document.getElementById('p-'+it.id).value || 0;
+    const m = Math.round(it.per === 'week' ? qty * price * WEEKS : qty * price);
+    monthly += m;
+
+    const u = t('u_' + it.id);
+    document.getElementById('v-'+it.id).textContent =
+      it.id === 'subs' ? tpl('valSubs', {q: qty})
+      : tpl(it.per === 'week' ? 'valWeek' : 'valMonth', {q: qty, u});
+
+    if (m > 0){
+      rows += `<div class="r-line">
+        <span class="l">${t('L_' + it.id)}<br><span class="qty">${tpl(it.per === 'week' ? 'qtyWk' : 'qtyMo', {q: qty, u, p: price})}</span></span>
+        <span class="amt">${fmt(m)}</span></div>`;
+    }
+  }
+
+  if (commute.result){
+    const r = commute.result;
+    const useMetro = commute.mode === 'metro';
+    const m = useMetro ? r.metro : r.drive;
+    const commuteCost = Math.round(m.cost);
+    monthly += commuteCost;
+    rows += `<div class="r-line">
+      <span class="l">${useMetro ? t('commuteMetro') : t('commuteDrive')}<br>
+      <span class="qty">${tpl('kmMoFuel', {km: Math.round(m.monthlyKm)})}${useMetro ? t('passSuffix') : ''}</span></span>
+      <span class="amt">${fmt(commuteCost)}</span></div>`;
+  }
+
+  // custom categories
+  for (const row of document.querySelectorAll('.custom-row')){
+    const name  = (row.querySelector('.cat-name').value || '').trim();
+    const count = +row.querySelector('.cat-count').value || 0;
+    const price = +row.querySelector('.cat-price').value || 0;
+    row.querySelector('.cat-val').textContent = tpl('valTimes', {q: count});
+    const m = Math.round(count * price);
+    if (m > 0){
+      monthly += m;
+      rows += `<div class="r-line">
+        <span class="l">${(name || t('unnamed')).toUpperCase()}<br><span class="qty">${tpl('qtyMo', {q: count, u: 'x', p: price})}</span></span>
+        <span class="amt">${fmt(m)}</span></div>`;
+    }
+  }
+
+  const opexM  = monthly - rentM;      // exact: both are integers
+  const annual = monthly * 12;
+
+  document.getElementById('lines').innerHTML =
+    rows || `<div class="r-line"><span class="l">${t('nothing')}</span><span class="amt">${fmt(0)}</span></div>`;
+  document.getElementById('t-month').textContent = fmt(monthly);
+  document.getElementById('bar-month').textContent = fmt(monthly);
+  document.getElementById('t-rent').textContent  = fmt(rentM);
+  document.getElementById('t-opex').textContent  = fmt(opexM);
+  document.getElementById('t-year').textContent  = fmt(annual);
+
+
+  const [big, small] = verdict(opexM * 12, +document.getElementById('delivery').value);
+  const stamp = document.getElementById('stamp');
+  if (stamp.firstChild.textContent !== big){
+    stamp.innerHTML = `${big}<small>${small}</small>`;
+    stamp.classList.remove('pulse'); void stamp.offsetWidth; stamp.classList.add('pulse');
+  }
+}
+
+/* ---------- custom categories ---------- */
+const customList = document.getElementById('custom-list');
+
+document.getElementById('add-cat').onclick = () => {
+  const row = document.createElement('div');
+  row.className = 'field custom-row';
+  row.innerHTML = `
+    <label class="name">
+      <input class="cat-name" type="text" data-i18n-ph="catPh" placeholder="${t('catPh')}">
+      <span class="val cat-val">${tpl('valTimes', {q: 4})}</span>
+      <button class="cat-del" title="${t('delCat')}" aria-label="${t('delCat')}">&times;</button>
+    </label>
+    <input class="cat-count" type="range" min="0" max="30" value="4">
+    <div class="hint avg"><span data-i18n="avgWord">${t('avgWord')}</span> <input class="price-edit cat-price" type="number" value="100" min="0"> <span>${t('sar')}</span></div>`;
+  row.querySelector('.cat-del').onclick = () => { row.remove(); calc(); };
+  row.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+  customList.appendChild(row);
+  row.querySelector('.cat-name').focus();
+  calc();
+};
+
+/* ---------- rent controls ---------- */
+const rentInput  = document.getElementById('rent');
+const resetBtn   = document.getElementById('reset-rent');
+const rentSrc    = document.getElementById('v-rent-src');
+
+function renderRentSrc(){
+  const nb = rent.areaNb;
+  if (!nb){ rentSrc.textContent = t('rentSrcPrompt'); resetBtn.hidden = true; return; }
+  const name = nbName(nb);
+  if (nb.rent == null){
+    rentSrc.textContent = tpl('noAvg', {name});
+    resetBtn.hidden = true;
+    return;
+  }
+  if (!rent.edited){
+    rentSrc.textContent = tpl('rentSrcAvg', {name});
+    resetBtn.hidden = true;
+  } else {
+    rentSrc.textContent = t('rentSrcYour');
+    resetBtn.hidden = false;
+    resetBtn.textContent = tpl('useAvgBtn', {name, amt: nb.rent.toLocaleString('en-US')});
+  }
+}
+
+function applyAreaRent(nb){
+  rent.areaNb = nb;
+  if (nb.rent != null && !rent.edited) rentInput.value = nb.rent;
+  renderRentSrc();
+}
+
+rentInput.addEventListener('input', () => {
+  rent.edited = true;
+  renderRentSrc();
+  calc();
+});
+
+resetBtn.onclick = () => {
+  const nb = rent.areaNb;
+  if (!nb || nb.rent == null) return;
+  rentInput.value = nb.rent;
+  rent.edited = false;
+  renderRentSrc();
+  calc();
+};
+
+/* ---------- map ---------- */
+const map = L.map('map', {scrollWheelZoom:true}).setView([24.72, 46.68], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 17,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+const LABEL_MIN_ZOOM = 12;   // below this the labels overlap, so they hide
+
+for (const s of METRO_STATIONS){
+  L.marker([s.lat, s.lng], {
+    icon: L.divIcon({
+      className:'',
+      html:`<div class="station-dot" style="width:11px;height:11px;background:${LINE_COLORS[s.line]}"></div>`,
+      iconSize:[11,11], iconAnchor:[5,5]
+    }),
+    interactive:false
+  }).addTo(map).bindTooltip(s.name, {
+    permanent:true, direction:'right', offset:[7,0],
+    className:`stn-label line-${s.line}`, opacity:1
+  });
+}
+
+function syncStationLabels(){
+  map.getContainer().classList.toggle('labels-off', map.getZoom() < LABEL_MIN_ZOOM);
+}
+map.on('zoomend', syncStationLabels);
+syncStationLabels();
+
+let pinMode = 'home';
+let homeMarker = null, workMarker = null, routeLayer = null;
+const btnHome = document.getElementById('btn-home');
+const btnWork = document.getElementById('btn-work');
+
+function setPinMode(m){
+  pinMode = m;
+  btnHome.classList.toggle('active', m === 'home');
+  btnWork.classList.toggle('active', m === 'work');
+}
+btnHome.onclick = () => setPinMode('home');
+btnWork.onclick = () => setPinMode('work');
+document.getElementById('btn-clear').onclick = () => {
+  [homeMarker, workMarker, routeLayer].forEach(l => l && map.removeLayer(l));
+  homeMarker = workMarker = routeLayer = null;
+  commute.home = commute.work = commute.result = null;
+  commute.demo = false;
+  commute.over = {km:null, min:null};
+  document.getElementById('commute-body').innerHTML =
+    'Click the map to drop your home pin, then your work pin.';
+  setPinMode('home');
+  rent.areaNb = null;
+  renderRentSrc();
+  calc();
+};
+
+const pinIcon = emoji =>
+  L.divIcon({className:'', html:`<div class="pin-emoji">${emoji}</div>`, iconSize:[26,26], iconAnchor:[13,24]});
+
+function userTouched(){
+  commute.demo = false;
+  commute.over = {km:null, min:null};
+}
+
+function placePin(kind, latlng){
+  const pt = {lat:latlng.lat, lng:latlng.lng};
+  if (kind === 'home'){
+    if (homeMarker) map.removeLayer(homeMarker);
+    homeMarker = L.marker(latlng, {icon:pinIcon('\u{1F3E0}'), draggable:true}).addTo(map);
+    homeMarker.on('dragend', ev => { userTouched(); commute.home = ev.target.getLatLng(); computeCommute(); });
+    commute.home = pt;
+  } else {
+    if (workMarker) map.removeLayer(workMarker);
+    workMarker = L.marker(latlng, {icon:pinIcon('\u{1F4BC}'), draggable:true}).addTo(map);
+    workMarker.on('dragend', ev => { userTouched(); commute.work = ev.target.getLatLng(); computeCommute(); });
+    commute.work = pt;
+  }
+}
+
+map.on('click', e => {
+  userTouched();
+  placePin(pinMode, e.latlng);
+  if (pinMode === 'home') setPinMode('work');
+  computeCommute();
+});
+
+// mode switch — user's choice, no recommendation
+const btnDrive = document.getElementById('mode-drive');
+const btnMetro = document.getElementById('mode-metro');
+function setMode(m){
+  commute.mode = m;
+  btnDrive.classList.toggle('active', m === 'drive');
+  btnMetro.classList.toggle('active', m === 'metro');
+  computeCommute();
+}
+btnDrive.onclick = () => setMode('drive');
+btnMetro.onclick = () => setMode('metro');
+
+function computeCommute(){
+  if (!commute.home || !commute.work){ calc(); return; }
+  const h = commute.home, w = commute.work;
+
+  const nbH = nearest(h, NEIGHBORHOODS);
+  const nbW = nearest(w, NEIGHBORHOODS);
+  const peakSpeed = (nbH.peakSpeed + nbW.peakSpeed) / 2;
+
+  applyAreaRent(nbH);
+
+  // drive all the way — model values, overridable by the user
+  const modelKm   = hav(h, w) * ROAD_FACTOR;
+  const driveKm   = commute.over.km  ?? modelKm;
+  const driveTime = commute.over.min ?? (driveKm / peakSpeed * 60);
+  const driveMonthlyKm = driveKm * 2 * WORKING_DAYS;
+  const driveCost = (driveMonthlyKm / commute.kmpl) * FUEL_PRICE;
+
+  // park & ride
+  const stH = nearest(h, METRO_STATIONS);
+  const stW = nearest(w, METRO_STATIONS);
+  const legKm    = hav(h, stH) * ROAD_FACTOR;
+  const metroKm  = hav(stH, stW) * 1.25;
+  const walkKm   = hav(stW, w) * ROAD_FACTOR;
+  const sameStation = stH.name === stW.name;
+
+  const legTime   = legKm / nbH.peakSpeed * 60;
+  const metroTime = sameStation ? 0 : metroKm / METRO_SPEED * 60 + METRO_OVERHEAD;
+  const walkTime  = walkKm / WALK_SPEED * 60;
+
+  // last mile: walk only if short, or if work sits inside a walkable district
+  const zone = WALKABLE_ZONES.find(z => hav(w, z) <= z.radiusKm);
+  const canWalk = walkTime <= WALK_MAX_MIN || (zone && walkTime <= zone.maxWalkMin);
+
+  const far      = Math.min(walkKm / TAXI_SCALE_KM, 1);          // 0 = at the station, 1 = far
+  const taxiLo   = Math.round(TAXI_MIN + (TAXI_MAX - TAXI_MIN) * 0.45 * far);
+  const taxiHi   = Math.round(TAXI_MIN * 1.45 + (TAXI_MAX - TAXI_MIN * 1.45) * far);
+  const taxiMid  = (taxiLo + taxiHi) / 2;
+  const taxiTime = walkKm / TAXI_SPEED * 60 + TAXI_WAIT;
+
+  const lastTime = canWalk ? walkTime : taxiTime;
+  const taxiMonthly = canWalk ? 0 : Math.round(taxiMid * 2 * WORKING_DAYS);
+
+  const metroTotalTime = legTime + metroTime + lastTime;
+  const metroMonthlyKm = legKm * 2 * WORKING_DAYS;
+  const metroCost = (metroMonthlyKm / commute.kmpl) * FUEL_PRICE + METRO_PASS + taxiMonthly;
+
+  commute.result = {
+    drive:{time:driveTime, cost:driveCost, monthlyKm:driveMonthlyKm},
+    metro:{time:metroTotalTime, cost:metroCost, monthlyKm:metroMonthlyKm},
+  };
+
+  // route drawing follows the user's chosen mode
+  if (routeLayer) map.removeLayer(routeLayer);
+  routeLayer = L.layerGroup().addTo(map);
+  if (commute.mode === 'metro'){
+    L.polyline([[h.lat,h.lng],[stH.lat,stH.lng]], {color:'#C9A227', weight:3, dashArray:'6 6'}).addTo(routeLayer);
+    if (!sameStation)
+      L.polyline([[stH.lat,stH.lng],[stW.lat,stW.lng]], {color:LINE_COLORS[stH.line]||'#2A6FB0', weight:4}).addTo(routeLayer);
+    L.polyline([[stW.lat,stW.lng],[w.lat,w.lng]], {color:'#888', weight:3, dashArray:'2 6'}).addTo(routeLayer);
+  } else {
+    L.polyline([[h.lat,h.lng],[w.lat,w.lng]], {color:'#C13A2E', weight:3, dashArray:'6 6'}).addTo(routeLayer);
+  }
+
+  const driveSel = commute.mode === 'drive';
+  const html = `
+    ${commute.demo ? `<div class="demo-tag">${t('demoTag')}</div>` : ''}
+    <div class="cc-row"><span class="k">${t('homeArea')}</span><span class="v">${nbName(nbH)}</span></div>
+    <div class="cc-row"><span class="k">${t('workArea')}</span><span class="v">${nbName(nbW)}</span></div>
+
+    <div class="cc-block ${driveSel ? 'selected' : ''}" style="margin-top:16px">
+      <div class="cc-block-title">${t('blkDrive')} ${driveSel ? `<span class="tag">${t('onReceipt')}</span>` : ''}</div>
+      <div class="cc-row"><span class="k">${t('peakTime')}</span>
+        <span class="v"><input id="cc-min" class="price-edit cc-edit" type="number" min="1" value="${Math.round(driveTime)}"> ${t('minUnit')}</span></div>
+      <div class="cc-row"><span class="k">${t('distance')}</span>
+        <span class="v"><input id="cc-km" class="price-edit cc-edit" type="number" min="1" step="0.5" value="${driveKm.toFixed(1)}"> ${t('kmSuffix')}</span></div>
+      <div class="cc-row"><span class="k">${t('fuelEcon')}</span>
+        <span class="v"><input id="cc-kmpl" class="price-edit cc-edit" type="number" min="1" step="0.5" value="${commute.kmpl}"> ${t('kmplSuffix')}</span></div>
+      <div class="cc-row"><span class="k">${t('fuelMo')}</span><span class="v" id="cc-drive-cost">${fmt(driveCost)}</span></div>
+    </div>
+
+    <div class="cc-block ${!driveSel ? 'selected' : ''}">
+      <div class="cc-block-title">${t('blkMetro')} ${!driveSel ? `<span class="tag">${t('onReceipt')}</span>` : ''}</div>
+      ${sameStation
+        ? `<div class="cc-row"><span class="k">${t('noteWord')}</span><span class="v">${tpl('sameStation', {s: stH.name})}</span></div>`
+        : `<div class="cc-row"><span class="k">${t('totalTime')}</span><span class="v">${tpl('eachWay', {m: `${Math.round(metroTotalTime)}&ndash;${Math.round(metroTotalTime * 1.2)} ${t('minUnit')}`})}</span></div>
+           <div class="cc-row"><span class="k cc-sub">${tpl('driveTo', {s: stH.name})}</span><span class="v">${mins(legTime)}</span></div>
+           <div class="cc-row"><span class="k cc-sub">${tpl('metroTo', {s: stW.name})}</span><span class="v">${mins(metroTime)}</span></div>
+           <div class="cc-row"><span class="k cc-sub">${canWalk ? t('walk') : t('taxiLeg')}</span><span class="v">${mins(lastTime)}</span></div>`}
+      <div class="cc-row"><span class="k">${t('fuelToStation')}</span><span class="v" id="cc-metro-fuel">${fmt(metroCost - METRO_PASS)}</span></div>
+      <div class="cc-row"><span class="k">${t('pass30')}</span><span class="v">${fmt(METRO_PASS)}</span></div>
+      ${canWalk ? '' : `<div class="cc-row"><span class="k">${t('taxiMo')}<br><span class="cc-sub" style="padding:0">${tpl('taxiEachWay', {lo: taxiLo, hi: taxiHi, sar: t('sar')})}</span></span><span class="v" id="cc-taxi">${fmt(taxiMonthly)}</span></div>`}
+      <div class="cc-row"><span class="k">${t('totalMo')}</span><span class="v" id="cc-metro-total">${fmt(metroCost)}</span></div>
+      ${canWalk && zone ? `<div class="cc-note" style="margin-top:8px">${tpl('walkableNote', {zone: zone.name})}</div>` : ''}
+    </div>
+
+    <div class="cc-note">${t('ccChoice')}</div>`;
+
+  document.getElementById('commute-body').innerHTML = html;
+
+  // live recompute of both modes without re-rendering the card (preserves input focus)
+  function refreshCosts(){
+    const kmpl  = commute.kmpl || 1;
+    const dKm   = (commute.over.km ?? modelKm);
+    const dMoKm = dKm * 2 * WORKING_DAYS;
+    const dCost = Math.round((dMoKm / kmpl) * FUEL_PRICE);
+    commute.result.drive.cost = dCost;
+    commute.result.drive.monthlyKm = dMoKm;
+    document.getElementById('cc-drive-cost').textContent = fmt(dCost);
+
+    const mFuel  = Math.round((metroMonthlyKm / kmpl) * FUEL_PRICE);
+    const mTotal = mFuel + METRO_PASS + taxiMonthly;
+    commute.result.metro.cost = mTotal;
+    const mf = document.getElementById('cc-metro-fuel');
+    if (mf){
+      mf.textContent = fmt(mFuel);
+      document.getElementById('cc-metro-total').textContent = fmt(mTotal);
+    }
+    calc();
+  }
+
+  document.getElementById('cc-km').addEventListener('input', e => {
+    const v = Math.max(+e.target.value || 0, 0);
+    commute.over.km = v || null;
+    refreshCosts();
+  });
+  document.getElementById('cc-min').addEventListener('input', e => {
+    const v = Math.max(+e.target.value || 0, 0);
+    commute.over.min = v || null;
+    commute.result.drive.time = v || commute.result.drive.time;
+  });
+  document.getElementById('cc-kmpl').addEventListener('input', e => {
+    const v = +e.target.value;
+    commute.kmpl = v > 0 ? v : commute.kmpl;
+    refreshCosts();
+  });
+
+  calc();
+}
+
+/* ---------- hints form ---------- */
+const hintText = document.getElementById('hint-text');
+const hintMsg  = document.getElementById('hint-msg');
+const hintSend = document.getElementById('hint-send');
+
+hintText.addEventListener('input', () =>
+  document.getElementById('hint-chars').textContent = hintText.value.length);
+
+hintSend.onclick = async () => {
+  const text = hintText.value.trim();
+  if (document.getElementById('hint-hp').value) return;          // honeypot
+  if (text.length < 5){ hintMsg.textContent = t('msgShort'); return; }
+  if (WEB3FORMS_KEY === 'YOUR_WEB3FORMS_ACCESS_KEY'){
+    hintMsg.textContent = t('msgNoKey');
+    return;
+  }
+  hintSend.disabled = true;
+  hintMsg.textContent = t('msgSending');
+  try{
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: 'Riyadh Receipt — hint / feedback',
+        message: text,
+        name: document.getElementById('hint-name').value.trim() || 'anonymous',
+        lang: LANG,
+      })
+    });
+    const ok = (await res.json()).success;
+    hintMsg.textContent = ok ? t('msgOk') : t('msgFail');
+    if (ok){ hintText.value=''; document.getElementById('hint-chars').textContent='0'; }
+  }catch(e){
+    hintMsg.textContent = t('msgFail');
+  }
+  hintSend.disabled = false;
+};
+
+// render approved hints as receipt stubs
+function renderStubs(){
+  document.getElementById('stubs').innerHTML = APPROVED_HINTS
+    .filter(h => h.text)
+    .map(h => `<div class="stub">"${h.text}"<div class="who">— ${h.who || t('anon')}</div></div>`)
+    .join('');
+}
+renderStubs();
+
+/* ---------- share ---------- */
+const SHARE_TEXT = () => t('shareText');
+const shareUrl = () => location.href.split('#')[0];
+const shareMsg = document.getElementById('share-msg');
+
+document.getElementById('share-wa').onclick = () =>
+  window.open('https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT() + ' ' + shareUrl()), '_blank');
+
+document.getElementById('share-x').onclick = () =>
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT()) +
+              '&url=' + encodeURIComponent(shareUrl()), '_blank');
+
+document.getElementById('share-copy').onclick = async () => {
+  if (navigator.share){                       // mobile: native sheet
+    try{ await navigator.share({title:t('title'), text:SHARE_TEXT(), url:shareUrl()}); }catch(e){}
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(shareUrl());
+    shareMsg.textContent = t('linkCopied');
+  }catch(e){
+    shareMsg.textContent = shareUrl();
+  }
+};
+
+/* ---------- language switch ---------- */
+function applyLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-ar').classList.toggle('active', lang === 'ar');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+
+  renderStubs();
+  renderRentSrc();
+  if (commute.home && commute.work) computeCommute(); else calc();
+  map.invalidateSize();
+}
+document.getElementById('lang-en').onclick = () => applyLang('en');
+document.getElementById('lang-ar').onclick = () => applyLang('ar');
+
+/* ---------- demo route on load: Al-Narjis -> KAFD ---------- */
+placePin('home', L.latLng(24.855, 46.645));
+placePin('work', L.latLng(24.767, 46.638));
+computeCommute();
+
+/* ---------- mobile sticky total bar ---------- */
+const mobileBar = document.getElementById('mobile-bar');
+let opexInView = false, receiptInView = false;
+const syncBar = () => mobileBar.classList.toggle('show', opexInView && !receiptInView);
+new IntersectionObserver(es => { opexInView = es[0].isIntersecting; syncBar(); },
+  {rootMargin:'0px 0px -40% 0px'}).observe(document.getElementById('opex-section'));
+new IntersectionObserver(es => { receiptInView = es[0].isIntersecting; syncBar(); },
+  {threshold:0.25}).observe(document.getElementById('receipt'));
+
+document.querySelectorAll('.controls input').forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+</body>
+</html>
