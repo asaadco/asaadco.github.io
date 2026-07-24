@@ -29,6 +29,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <!-- Hotjar Tracking Code for asaad101.sa -->
+    <script>
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:6708556,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    </script>
 <style>
   :root{
     --bg:#0C352A;
@@ -578,7 +589,7 @@ resetBtn.onclick = () => {
         </div>
         <div class="hint-count"><span id="hint-chars">0</span>/140</div>
         <!-- honeypot -->
-        <input type="text" id="hint-hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <input type="text" id="hint-hp" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%) " aria-hidden="true">
         <button class="btn" id="hint-send" data-i18n="sendBtn">Send it in</button>
         <div class="form-msg" id="hint-msg" role="status"></div>
 
@@ -588,7 +599,7 @@ resetBtn.onclick = () => {
   </section>
 
   <footer data-i18n="footerText">
-    Averages are Riyadh street estimates. Adjust the prices to your reality. Share Feedback to make this better! <br>
+    Averages are Riyadh street estimates. Adjust the prices to your reality. Share Feedback to make this better! No data is saved but anonymized UX interactions may be collected through Hotjar.<br>
     Built for fun in collaboration with Claude Code!
   </footer>
 </div>
@@ -758,7 +769,7 @@ en: {
   hintCopy:'Share a line of hard-earned Riyadh wisdom, or tell me what\'s wrong with this page. Numbers that look off, a neighbourhood I missed, anything. Approved hints get printed below.',
   hintPh:'A Riyadh hint, or tell me what\'s broken here.',
   namePh:'Name or alias (optional)', sendBtn:'Send it in',
-  footerText:'Averages are Riyadh street estimates. Adjust the prices to your reality.<br>Built for fun in collaboration with Claude Code.',
+  footerText:'Averages are Riyadh street estimates. Adjust the prices to your reality. Share your Feedback to make this better. No data is saved. Anonymized UX interactions may be collected through Hotjar <br>Built for fun in collaboration with Claude Code.  ',
   // --- dynamic ---
   sar:'SAR', minUnit:'min',
   u_groceries:'runs', u_delivery:'orders', u_eatout:'meals', u_padel:'sessions', u_subs:'services', u_shop:'orders',
@@ -815,7 +826,7 @@ ar: {
   cat_groceries:'المقاضي', hint_groceries:'ريال للمشوار الواحد، قبل ما توصل ممر السناكات',
   cat_delivery:'تطبيقات التوصيل', hint_delivery:'ريال للطلب شامل الرسوم، وكلنا نعرف أنه أكثر',
   cat_eatout:'الأكل برا', hint_eatout:'ريال للطلعة الواحدة',
-  cat_padel:'بادل / رياضة', hint_padel:'ريال للجلسة (قسمة الملعب + العصير بعدها)',
+  cat_padel:'بادل / رياضة', hint_padel:'ريال للجلسة او القطه',
   cat_subs:'الاشتراكات', hint_subs:'ريال لكل خدمة شهرياً. نعم، اللي نسيتها تنحسب.',
   cat_shop:'التسوق', hint_shop:'ريال لكل "كان عليه تخفيض"',
   addCat:'+ أضف فئة من عندك',
@@ -831,7 +842,7 @@ ar: {
   hintCopy:'شارك سطراً من حكمة الرياض المكتسبة بالتجربة، أو قل لي وش الخطأ في الصفحة. أرقام غير دقيقة، حي ناقص، أي شيء. النصائح المعتمدة تُطبع بالأسفل.',
   hintPh:'نصيحة عن الرياض، أو قل لي وش الخربان هنا.',
   namePh:'الاسم أو اللقب (اختياري)', sendBtn:'أرسلها',
-  footerText:'المتوسطات تقديرات من شوارع الرياض. عدّل الأسعار على واقعك. شاركنا رأيك لتحسين التجربة.<br>بُنيت بالتعاون مع كلاود كود.',
+  footerText:'المتوسطات تقديرات من شوارع الرياض. عدّل الأسعار على واقعك. شاركنا رأيك لتحسين التجربة. لايتم حفظ اي بيانات لكن قد يتم جمع تفاعلات تجربة المستخدم عن طريق هوت جار<br>بُنيت بالتعاون مع كلاود كود.',
   // --- dynamic ---
   sar:'ريال', minUnit:'دقيقة',
   u_groceries:'مشاوير', u_delivery:'طلبات', u_eatout:'وجبات', u_padel:'جلسات', u_subs:'خدمات', u_shop:'طلبات',
