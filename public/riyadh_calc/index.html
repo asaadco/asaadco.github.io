@@ -795,12 +795,12 @@ en: {
   driveTo:'drive to {s}', metroTo:'metro to {s}', walk:'walk last mile', walkLong:'walk (long one)',
   taxiLeg:'taxi last mile', taxiMo:'Taxi last mile', taxiEachWay:'{lo}&ndash;{hi} {sar} each way',
   walkableNote:'{zone} is walkable &mdash; shaded paths and sky bridges.',
-  fuelToStation:'Fuel to station', pass30:'30-Day Standard Pass', totalMo:'Total / month',
+  fuelToStation:'Fuel to station', pass30:'Riyadh Metro 30-Day Standard Pass', totalMo:'Total / month',
   sameStation:'{s} is nearest to both pins', noteWord:'Note',
   ccChoice:'Cost is only one input. Parking, safety, and arriving without having fought the ring road don\'t show up on a receipt. Pick the mode you\'d actually use.',
   msgShort:'Give it at least a full sentence.', msgNoKey:'Form not connected yet — add the Web3Forms key.',
   msgSending:'Sending...', msgOk:'Got it. Good hints get printed below.', msgFail:'Something went wrong. Try again in a minute.',
-  anon:'anonymous', catPh:'Name it. Cigarettes? Cats? Car payment?', unnamed:'UNNAMED', delCat:'Remove category',
+  anon:'anonymous', catPh:'Name it. Loan? Car payment?', unnamed:'UNNAMED', delCat:'Remove category',
   shareText:'I just got my Riyadh Lifestyle Receipt. No refunds on lifestyle choices. Get yours:',
   linkCopied:'Link copied. Deploy responsibly.',
   demoTag:'Demo route &bull; drag the pins or drop your own',
@@ -868,13 +868,13 @@ ar: {
   driveTo:'قيادة إلى {s}', metroTo:'مترو إلى {s}', walk:'مشي آخر مسافة', walkLong:'مشي (مسافة طويلة)',
   taxiLeg:'تاكسي آخر مسافة', taxiMo:'تاكسي آخر مسافة', taxiEachWay:'{lo}&ndash;{hi} {sar} للاتجاه',
   walkableNote:'{zone} منطقة قابلة للمشي &mdash; ممرات مظللة وجسور علوية.',
-  fuelToStation:'وقود إلى المحطة', pass30:'اشتراك 30 يوم القياسي', totalMo:'الإجمالي / شهر',
+  fuelToStation:'وقود إلى المحطة', pass30:'مترو الرياض اشتراك 30 يوم', totalMo:'الإجمالي / شهر',
   sameStation:'{s} هي الأقرب للدبوسين', noteWord:'ملاحظة',
   ccChoice:'التكلفة مدخل واحد فقط. المواقف والأمان والوصول بدون معركة الدائري لا تظهر على الفاتورة. اختر الوسيلة التي ستستخدمها فعلاً.',
   msgShort:'اكتبها جملة كاملة على الأقل.', msgNoKey:'النموذج غير مفعّل بعد.',
   msgSending:'جارٍ الإرسال...', msgOk:'وصلت. النصائح الجيدة تُطبع بالأسفل.', msgFail:'صار خطأ. جرّب بعد دقيقة.',
-  anon:'مجهول', catPh:'سمّها. دخان؟ قطط؟ قسط السيارة؟', unnamed:'بدون اسم', delCat:'حذف الفئة',
-  shareText:'استلمت للتو فاتورة نمط حياتي في الرياض. لا استرداد لخيارات نمط الحياة. استلم فاتورتك:',
+  anon:'مجهول', catPh:'سمّها. مصاريف خدمة النظافة؟ قسط السيارة؟', unnamed:'بدون اسم', delCat:'حذف الفئة',
+  shareText:'استلمت للتو فاتورة نمط حياتي في الرياض. شيك على فاتورتك:',
   linkCopied:'تم نسخ الرابط. انشره بمسؤولية.',
   demoTag:'مسار تجريبي &bull; اسحب الدبابيس أو ضع دبابيسك',
   rentCtx:'متوسطات الأحياء &asymp; شقة عائلية (3 غرف). عدّل الرقم على سكنك الفعلي.',
@@ -1372,13 +1372,21 @@ const SHARE_TEXT = () => t('shareText');
 const shareUrl = () => location.href.split('#')[0];
 const shareMsg = document.getElementById('share-msg');
 
-document.getElementById('share-wa').onclick = () =>
-  window.open('https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT() + ' ' + shareUrl()), '_blank');
-
-document.getElementById('share-x').onclick = () =>
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT()) +
-              '&url=' + encodeURIComponent(shareUrl()), '_blank');
-
+document.getElementById('share-wa').onclick = () => {
+  const url = 'https://wa.me/?text=' +
+    encodeURIComponent(SHARE_TEXT() + ' ' + shareUrl());
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    location.href = url;          // OS/webview can intercept and open the app
+  } else {
+    window.open(url, '_blank');   // desktop → WhatsApp Web in a new tab
+  }
+};
+document.getElementById('share-x').onclick = () => {
+  const url = 'https://twitter.com/intent/tweet?text=' +
+    encodeURIComponent(SHARE_TEXT()) + '&url=' + encodeURIComponent(shareUrl());
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) location.href = url;
+  else window.open(url, '_blank');
+};
 document.getElementById('share-copy').onclick = async () => {
   if (navigator.share){                       // mobile: native sheet
     try{ await navigator.share({title:t('title'), text:SHARE_TEXT(), url:shareUrl()}); }catch(e){}
