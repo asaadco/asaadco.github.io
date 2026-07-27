@@ -456,7 +456,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_groceries">Groceries</span> <span class="val" id="v-groceries">6 runs / month</span></label>
           <input type="range" id="groceries" min="0" max="30" value="6">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-groceries" value="250"> <span data-i18n="hint_groceries">SAR per run, before you reach the snacks aisle</span> <select class="recur" id="r-groceries">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-groceries" value="250"><select class="recur" id="r-groceries">
             <option value="w" data-i18n="perWeekly">Weekly</option>
             <option value="m" data-i18n="perMonthly" selected>Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -467,7 +467,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_delivery">Delivery apps</span> <span class="val" id="v-delivery">4 orders / week</span></label>
           <input type="range" id="delivery" min="0" max="21" value="4">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-delivery" value="55"> <span data-i18n="hint_delivery">SAR per order, fees included, we both know it's more</span> <select class="recur" id="r-delivery">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-delivery" value="55"><select class="recur" id="r-delivery">
             <option value="w" data-i18n="perWeekly" selected>Weekly</option>
             <option value="m" data-i18n="perMonthly">Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -478,7 +478,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_eatout">Eating out</span> <span class="val" id="v-eatout">2 meals / week</span></label>
           <input type="range" id="eatout" min="0" max="14" value="2">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-eatout" value="130"> <span data-i18n="hint_eatout">SAR per outing</span> <select class="recur" id="r-eatout">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-eatout" value="130"><select class="recur" id="r-eatout">
             <option value="w" data-i18n="perWeekly" selected>Weekly</option>
             <option value="m" data-i18n="perMonthly">Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -489,7 +489,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_padel">Sports/Padel</span> <span class="val" id="v-padel">4 sessions / month</span></label>
           <input type="range" id="padel" min="0" max="20" value="4">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-padel" value="85"> <span data-i18n="hint_padel">SAR per session (court split + the juice after)</span> <select class="recur" id="r-padel">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-padel" value="85"><select class="recur" id="r-padel">
             <option value="w" data-i18n="perWeekly">Weekly</option>
             <option value="m" data-i18n="perMonthly" selected>Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -500,7 +500,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_subs">Subscriptions</span> <span class="val" id="v-subs">6 services</span></label>
           <input type="range" id="subs" min="0" max="15" value="6">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-subs" value="45"> <span data-i18n="hint_subs">SAR each per month. Yes, the one you forgot counts.</span> <select class="recur" id="r-subs">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-subs" value="45"><select class="recur" id="r-subs">
             <option value="w" data-i18n="perWeekly">Weekly</option>
             <option value="m" data-i18n="perMonthly" selected>Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -511,7 +511,7 @@
         <div class="field">
           <label class="name"><span data-i18n="cat_shop">Shopping</span> <span class="val" id="v-shop">2 orders / month</span></label>
           <input type="range" id="shop" min="0" max="15" value="2">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-shop" value="180"> <span data-i18n="hint_shop">SAR per "it was on sale"</span> <select class="recur" id="r-shop">
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-shop" value="180"> <select class="recur" id="r-shop">
             <option value="w" data-i18n="perWeekly">Weekly</option>
             <option value="m" data-i18n="perMonthly" selected>Monthly</option>
             <option value="q" data-i18n="perQuarterly">Quarterly</option>
@@ -686,6 +686,8 @@ const LINE_COLORS = {1:'#2A6FB0',2:'#C13A2E',3:'#E07B2A',4:'#E0B62A',5:'#2E8B57'
 const WEB3FORMS_KEY = '27a273b4-2530-41c2-915d-93c8c5d822b6';
 const APPROVED_HINTS = [
   {text:'محلات الستائر اللي بعيده عن سنتر شمال الرياض اسعارها وجودتها تكون افضل', who:'KHALID'},
+  {text:'Better to rent or buy a car than to Uber as it allows you the freedom to go out and is kore cost effective.', who:"Ayaz bin Musa"},
+  {text:'At the airport, You can pay 100-120 SAR for a quality service from the kiosks taxi providers. Normal taxis / Ubers cost more for less.', who:'Ahmed'}
   // {text:'', who:''},
 ];
 
@@ -735,12 +737,12 @@ en: {
   opexSub:'Your Operational Costs per month.',
   rentLabel:'Annual rent', rentUnit:'SAR / year',
   avgWord:'avg',
-  cat_groceries:'Groceries', hint_groceries:'SAR per run, before you reach the snacks aisle',
-  cat_delivery:'Delivery apps', hint_delivery:'SAR per order, fees included, we both know it\'s more',
-  cat_eatout:'Eating out', hint_eatout:'SAR per outing',
-  cat_padel:'Padel / sports', hint_padel:'SAR per session (court split + the juice after)',
-  cat_subs:'Subscriptions', hint_subs:'SAR each per month. Yes, the one you forgot counts.',
-  cat_shop:'Shopping', hint_shop:'SAR per "it was on sale"',
+  cat_groceries:'Groceries', hint_groceries:'',
+  cat_delivery:'Delivery apps', hint_delivery:'',
+  cat_eatout:'Eating out', hint_eatout:'',
+  cat_padel:'Padel / sports', hint_padel:'',
+  cat_subs:'Subscriptions', hint_subs:'',
+  cat_shop:'Shopping', hint_shop:'',
   addCat:'+ Add your own category',
   rShop:'LIFESTYLE &amp; CO.', rShopSub:'حاسبة المعيشة',
   rMeta:'RIYADH BRANCH &bull; OPEN 24/7<br>CASHIER: YOUR OWN DECISIONS',
@@ -813,12 +815,12 @@ ar: {
   opexSub:'تكلفة تشغيل نفسك شهرياً. كن صادقاً، الفاتورة تُطبع وأنت تسحب.',
   rentLabel:'الإيجار السنوي', rentUnit:'ريال / سنة',
   avgWord:'بمعدل',
-  cat_groceries:'المقاضي', hint_groceries:'ريال للمشوار الواحد، قبل ما توصل ممر السناكات',
-  cat_delivery:'تطبيقات التوصيل', hint_delivery:'ريال للطلب شامل الرسوم، وكلنا نعرف أنه أكثر',
-  cat_eatout:'الأكل برا', hint_eatout:'ريال للطلعة الواحدة',
-  cat_padel:'بادل / رياضة', hint_padel:'ريال للجلسة او القطه',
-  cat_subs:'الاشتراكات', hint_subs:'ريال لكل خدمة شهرياً. نعم، اللي نسيتها تنحسب.',
-  cat_shop:'التسوق', hint_shop:'ريال لكل "كان عليه تخفيض"',
+  cat_groceries:'المقاضي', hint_groceries:'',
+  cat_delivery:'تطبيقات التوصيل', hint_delivery:'',
+  cat_eatout:'الأكل برا', hint_eatout:'',
+  cat_padel:'بادل / رياضة', hint_padel:'',
+  cat_subs:'الاشتراكات', hint_subs:'',
+  cat_shop:'التسوق', hint_shop:'',
   addCat:'+ أضف فئة من عندك',
   rShop:'فاتورة نمط الحياة', rShopSub:'LIFESTYLE &amp; CO.',
   rMeta:'فرع الرياض &bull; مفتوح 24/7<br>الكاشير: قراراتك أنت',
