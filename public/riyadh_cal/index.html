@@ -82,73 +82,6 @@
   section h2{font-size:clamp(22px,3vw,32px);font-weight:700;line-height:1.1}
   section .sub{margin-bottom:22px;font-size:15px}
 
-  /* ---------- custom categories ---------- */
-const customList = document.getElementById('custom-list');
-
-document.getElementById('add-cat').onclick = () => {
-  const row = document.createElement('div');
-  row.className = 'field custom-row';
-  row.innerHTML = `
-    <label class="name">
-      <input class="cat-name" type="text" data-i18n-ph="catPh" placeholder="${t('catPh')}">
-      <span class="val cat-val">${tpl('valTimes', {q: 4})}</span>
-      <button class="cat-del" title="${t('delCat')}" aria-label="${t('delCat')}">&times;</button>
-    </label>
-    <input class="cat-count" type="range" min="0" max="30" value="4">
-    <div class="hint avg"><span data-i18n="avgWord">${t('avgWord')}</span> <input class="price-edit cat-price" type="number" value="100" min="0"> <span>${t('sar')}</span></div>`;
-  row.querySelector('.cat-del').onclick = () => { row.remove(); calc(); };
-  row.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
-  customList.appendChild(row);
-  row.querySelector('.cat-name').focus();
-  calc();
-};
-
-/* ---------- rent controls ---------- */
-const rentInput  = document.getElementById('rent');
-const resetBtn   = document.getElementById('reset-rent');
-const rentSrc    = document.getElementById('v-rent-src');
-
-function renderRentSrc(){
-  const nb = rent.areaNb;
-  if (!nb){ rentSrc.textContent = t('rentSrcPrompt'); resetBtn.hidden = true; return; }
-  const name = nbName(nb);
-  if (nb.rent == null){
-    rentSrc.textContent = tpl('noAvg', {name});
-    resetBtn.hidden = true;
-    return;
-  }
-  if (!rent.edited){
-    rentSrc.textContent = tpl('rentSrcAvg', {name});
-    resetBtn.hidden = true;
-  } else {
-    rentSrc.textContent = t('rentSrcYour');
-    resetBtn.hidden = false;
-    resetBtn.textContent = tpl('useAvgBtn', {name, amt: nb.rent.toLocaleString('en-US')});
-  }
-}
-
-function applyAreaRent(nb){
-  rent.areaNb = nb;
-  if (nb.rent != null && !rent.edited) rentInput.value = nb.rent;
-  renderRentSrc();
-}
-
-rentInput.addEventListener('input', () => {
-  rent.edited = true;
-  renderRentSrc();
-  calc();
-});
-
-resetBtn.onclick = () => {
-  const nb = rent.areaNb;
-  if (!nb || nb.rent == null) return;
-  rentInput.value = nb.rent;
-  rent.edited = false;
-  renderRentSrc();
-  calc();
-};
-
-/* ---------- map ---------- */
   .commute-grid{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
   @media (max-width:900px){.commute-grid{grid-template-columns:1fr}}
   #map{
@@ -219,6 +152,13 @@ resetBtn.onclick = () => {
     color:var(--gold);
   }
   .price-edit:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .recur{
+    background:rgba(246,244,238,.06);border:1px solid rgba(246,244,238,.18);
+    border-radius:7px;color:rgba(246,244,238,.8);padding:4px 6px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;cursor:pointer;
+  }
+  .recur:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  [dir=rtl] .recur{font-family:'IBM Plex Sans Arabic',sans-serif}
   input[type=range]{
     -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;
     background:rgba(246,244,238,.18);outline:none;cursor:pointer;
@@ -426,6 +366,16 @@ resetBtn.onclick = () => {
   @media (prefers-reduced-motion:reduce){#mobile-bar{transition:none}}
   [dir=rtl] #mobile-bar span:first-child{font-family:'IBM Plex Sans Arabic',sans-serif}
 
+  .csv-btn{
+    display:block;margin:14px auto 0;background:transparent;
+    border:1px solid rgba(246,244,238,.3);color:rgba(246,244,238,.75);
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;
+    border-radius:8px;padding:9px 16px;cursor:pointer;
+  }
+  .csv-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .csv-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  [dir=rtl] .csv-btn{letter-spacing:0;font-family:'IBM Plex Sans Arabic',sans-serif}
+
   .pin-emoji{font-size:26px;line-height:26px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
   .station-dot{border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
   .leaflet-tooltip.stn-label{
@@ -506,37 +456,67 @@ resetBtn.onclick = () => {
         <div class="field">
           <label class="name"><span data-i18n="cat_groceries">Groceries</span> <span class="val" id="v-groceries">6 runs / month</span></label>
           <input type="range" id="groceries" min="0" max="30" value="6">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-groceries" value="250"> <span data-i18n="hint_groceries">SAR per run, before you reach the snacks aisle</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-groceries" value="250"> <span data-i18n="hint_groceries">SAR per run, before you reach the snacks aisle</span> <select class="recur" id="r-groceries">
+            <option value="w" data-i18n="perWeekly">Weekly</option>
+            <option value="m" data-i18n="perMonthly" selected>Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div class="field">
           <label class="name"><span data-i18n="cat_delivery">Delivery apps</span> <span class="val" id="v-delivery">4 orders / week</span></label>
           <input type="range" id="delivery" min="0" max="21" value="4">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-delivery" value="55"> <span data-i18n="hint_delivery">SAR per order, fees included, we both know it's more</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-delivery" value="55"> <span data-i18n="hint_delivery">SAR per order, fees included, we both know it's more</span> <select class="recur" id="r-delivery">
+            <option value="w" data-i18n="perWeekly" selected>Weekly</option>
+            <option value="m" data-i18n="perMonthly">Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div class="field">
           <label class="name"><span data-i18n="cat_eatout">Eating out</span> <span class="val" id="v-eatout">2 meals / week</span></label>
           <input type="range" id="eatout" min="0" max="14" value="2">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-eatout" value="130"> <span data-i18n="hint_eatout">SAR per outing</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-eatout" value="130"> <span data-i18n="hint_eatout">SAR per outing</span> <select class="recur" id="r-eatout">
+            <option value="w" data-i18n="perWeekly" selected>Weekly</option>
+            <option value="m" data-i18n="perMonthly">Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div class="field">
           <label class="name"><span data-i18n="cat_padel">Sports/Padel</span> <span class="val" id="v-padel">4 sessions / month</span></label>
           <input type="range" id="padel" min="0" max="20" value="4">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-padel" value="85"> <span data-i18n="hint_padel">SAR per session (court split + the juice after)</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-padel" value="85"> <span data-i18n="hint_padel">SAR per session (court split + the juice after)</span> <select class="recur" id="r-padel">
+            <option value="w" data-i18n="perWeekly">Weekly</option>
+            <option value="m" data-i18n="perMonthly" selected>Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div class="field">
           <label class="name"><span data-i18n="cat_subs">Subscriptions</span> <span class="val" id="v-subs">6 services</span></label>
           <input type="range" id="subs" min="0" max="15" value="6">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-subs" value="45"> <span data-i18n="hint_subs">SAR each per month. Yes, the one you forgot counts.</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-subs" value="45"> <span data-i18n="hint_subs">SAR each per month. Yes, the one you forgot counts.</span> <select class="recur" id="r-subs">
+            <option value="w" data-i18n="perWeekly">Weekly</option>
+            <option value="m" data-i18n="perMonthly" selected>Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div class="field">
           <label class="name"><span data-i18n="cat_shop">Shopping</span> <span class="val" id="v-shop">2 orders / month</span></label>
           <input type="range" id="shop" min="0" max="15" value="2">
-          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-shop" value="180"> <span data-i18n="hint_shop">SAR per "it was on sale"</span></div>
+          <div class="hint avg"><span data-i18n="avgWord">avg</span> <input class="price-edit" type="number" id="p-shop" value="180"> <span data-i18n="hint_shop">SAR per "it was on sale"</span> <select class="recur" id="r-shop">
+            <option value="w" data-i18n="perWeekly">Weekly</option>
+            <option value="m" data-i18n="perMonthly" selected>Monthly</option>
+            <option value="q" data-i18n="perQuarterly">Quarterly</option>
+            <option value="y" data-i18n="perAnnually">Annually</option>
+          </select></div>
         </div>
 
         <div id="custom-list"></div>
@@ -561,6 +541,7 @@ resetBtn.onclick = () => {
           <div class="barcode"></div>
           <div class="r-foot" data-i18n="rFoot">NO REFUNDS ON LIFESTYLE CHOICES<br>screenshot it &bull; then settle the bill below</div>
         </div>
+        <button class="csv-btn" id="export-csv" data-i18n="exportCsv">Export CSV</button>
       </div>
     </div>
   </section>
@@ -779,6 +760,10 @@ en: {
   u_groceries:'runs', u_delivery:'orders', u_eatout:'meals', u_padel:'sessions', u_subs:'services', u_shop:'orders',
   L_groceries:'GROCERIES', L_delivery:'DELIVERY APPS', L_eatout:'EATING OUT', L_padel:'PADEL / SPORTS', L_subs:'SUBSCRIPTIONS', L_shop:'SHOPPING',
   valWeek:'{q} {u} / week', valMonth:'{q} {u} / month', valSubs:'{q} services', valTimes:'{q} times / month',
+  perWeekly:'Weekly', perMonthly:'Monthly', perQuarterly:'Quarterly', perAnnually:'Annually',
+  valQuarter:'{q} {u} / quarter', valYear:'{q} {u} / year',
+  qtyQtr:'{q} {u} /qtr @ {p}', qtyYr:'{q} {u} /yr @ {p}',
+  valTimesW:'{q} times / week', valTimesQ:'{q} times / quarter', valTimesY:'{q} times / year',
   qtyWk:'{q} {u} /wk @ {p}', qtyMo:'{q} {u} /mo @ {p}',
   rentLine:'RENT', perYr:'{src}, {amt} / yr', srcYour:'your figure', srcArea:'{name} avg', srcDefault:'default',
   perMonth:'{amt} / month',
@@ -808,6 +793,7 @@ en: {
   shareText:'I just got my Riyadh Lifestyle Receipt. No refunds on lifestyle choices. Get yours:',
   linkCopied:'Link copied. Deploy responsibly.',
   demoTag:'Demo route &bull; drag the pins or drop your own',
+  exportCsv:'Export CSV', csvItem:'Item', csvDetails:'Details', csvMonthly:'Monthly SAR', csvAnnual:'Annual SAR',
   rentCtx:'Area averages &asymp; a family apartment (3BR). Adjust the number to your actual place.',
   kmSuffix:'km each way',
   fuelEcon:'Fuel economy', kmplSuffix:'km / L',
@@ -852,6 +838,10 @@ ar: {
   u_groceries:'مشاوير', u_delivery:'طلبات', u_eatout:'وجبات', u_padel:'جلسات', u_subs:'خدمات', u_shop:'طلبات',
   L_groceries:'المقاضي', L_delivery:'تطبيقات التوصيل', L_eatout:'الأكل برا', L_padel:'بادل / رياضة', L_subs:'الاشتراكات', L_shop:'التسوق',
   valWeek:'{q} {u} / أسبوع', valMonth:'{q} {u} / شهر', valSubs:'{q} خدمات', valTimes:'{q} مرة / شهر',
+  perWeekly:'أسبوعي', perMonthly:'شهري', perQuarterly:'ربع سنوي', perAnnually:'سنوي',
+  valQuarter:'{q} {u} / ربع سنة', valYear:'{q} {u} / سنة',
+  qtyQtr:'{q} {u} /ربع @ {p}', qtyYr:'{q} {u} /سنة @ {p}',
+  valTimesW:'{q} مرة / أسبوع', valTimesQ:'{q} مرة / ربع سنة', valTimesY:'{q} مرة / سنة',
   qtyWk:'{q} {u} /أسبوع @ {p}', qtyMo:'{q} {u} /شهر @ {p}',
   rentLine:'الإيجار', perYr:'{src}، {amt} / سنة', srcYour:'رقمك أنت', srcArea:'متوسط {name}', srcDefault:'افتراضي',
   perMonth:'{amt} / شهر',
@@ -881,6 +871,7 @@ ar: {
   shareText:'استلمت للتو فاتورة نمط حياتي في الرياض. شيك على فاتورتك:',
   linkCopied:'تم نسخ الرابط. انشره بمسؤولية.',
   demoTag:'مسار تجريبي &bull; اسحب الدبابيس أو ضع دبابيسك',
+  exportCsv:'تصدير CSV', csvItem:'البند', csvDetails:'التفاصيل', csvMonthly:'شهري ريال', csvAnnual:'سنوي ريال',
   rentCtx:'متوسطات الأحياء &asymp; شقة عائلية (3 غرف). عدّل الرقم على سكنك الفعلي.',
   kmSuffix:'كم للاتجاه',
   fuelEcon:'كفاءة الوقود', kmplSuffix:'كم / لتر',
@@ -906,13 +897,13 @@ const nearest = (pt, list) =>
   list.reduce((best, x) => hav(pt, x) < hav(pt, best) ? x : best, list[0]);
 
 const items = [
-  {id:'groceries', per:'month'},
-  {id:'delivery',  per:'week'},
-  {id:'eatout',    per:'week'},
-  {id:'padel',     per:'month'},
-  {id:'subs',      per:'month'},
-  {id:'shop',      per:'month'},
+  {id:'groceries'}, {id:'delivery'}, {id:'eatout'},
+  {id:'padel'}, {id:'subs'}, {id:'shop'},
 ];
+const PERIOD_FACTOR = {w: WEEKS, m:1, q:1/3, y:1/12};
+const PERIOD_VAL    = {w:'valWeek',   m:'valMonth', q:'valQuarter', y:'valYear'};
+const PERIOD_QTY    = {w:'qtyWk',     m:'qtyMo',    q:'qtyQtr',     y:'qtyYr'};
+const PERIOD_TIMES  = {w:'valTimesW', m:'valTimes', q:'valTimesQ',  y:'valTimesY'};
 
 
 // verdict on annual spend, no salary involved
@@ -940,8 +931,12 @@ function renderRentHint(){
   hint.innerHTML = tpl('perMonth', {amt: fmt(r.monthly)});
 }
 
+let receiptData = [];      // rebuilt on every calc(); feeds the CSV export
+let lastTotals   = {monthly:0, rentM:0};
+
 function calc(){
   let monthly = 0, rentM = 0, rows = '';
+  receiptData = [];
 
   // rent first — it's the biggest line on any real receipt
   const r = rentMonthly();
@@ -951,25 +946,28 @@ function calc(){
     monthly += rentRounded;
     rentM = rentRounded;
     const src = rent.edited ? t('srcYour') : (rent.areaNb ? tpl('srcArea', {name: nbName(rent.areaNb)}) : t('srcDefault'));
+    receiptData.push({item: t('rentLine'), details: tpl('perYr', {src, amt: Math.round(r.annual)}), m: rentRounded});
     rows += `<div class="r-line">
       <span class="l">${t('rentLine')}<br><span class="qty">${tpl('perYr', {src, amt: Math.round(r.annual).toLocaleString('en-US')})}</span></span>
       <span class="amt">${fmt(rentRounded)}</span></div>`;
   }
 
   for (const it of items){
-    const qty   = +document.getElementById(it.id).value;
-    const price = +document.getElementById('p-'+it.id).value || 0;
-    const m = Math.round(it.per === 'week' ? qty * price * WEEKS : qty * price);
+    const qty    = +document.getElementById(it.id).value;
+    const price  = +document.getElementById('p-'+it.id).value || 0;
+    const period = document.getElementById('r-'+it.id).value;
+    const m = Math.round(qty * price * PERIOD_FACTOR[period]);
     monthly += m;
 
     const u = t('u_' + it.id);
     document.getElementById('v-'+it.id).textContent =
       it.id === 'subs' ? tpl('valSubs', {q: qty})
-      : tpl(it.per === 'week' ? 'valWeek' : 'valMonth', {q: qty, u});
+      : tpl(PERIOD_VAL[period], {q: qty, u});
 
     if (m > 0){
+      receiptData.push({item: t('L_' + it.id), details: tpl(PERIOD_QTY[period], {q: qty, u, p: price}), m});
       rows += `<div class="r-line">
-        <span class="l">${t('L_' + it.id)}<br><span class="qty">${tpl(it.per === 'week' ? 'qtyWk' : 'qtyMo', {q: qty, u, p: price})}</span></span>
+        <span class="l">${t('L_' + it.id)}<br><span class="qty">${tpl(PERIOD_QTY[period], {q: qty, u, p: price})}</span></span>
         <span class="amt">${fmt(m)}</span></div>`;
     }
   }
@@ -980,6 +978,8 @@ function calc(){
     const m = useMetro ? r.metro : r.drive;
     const commuteCost = Math.round(m.cost);
     monthly += commuteCost;
+    receiptData.push({item: useMetro ? t('commuteMetro') : t('commuteDrive'),
+      details: tpl('kmMoFuel', {km: Math.round(m.monthlyKm)}) + (useMetro ? t('passSuffix') : ''), m: commuteCost});
     rows += `<div class="r-line">
       <span class="l">${useMetro ? t('commuteMetro') : t('commuteDrive')}<br>
       <span class="qty">${tpl('kmMoFuel', {km: Math.round(m.monthlyKm)})}${useMetro ? t('passSuffix') : ''}</span></span>
@@ -989,18 +989,21 @@ function calc(){
   // custom categories
   for (const row of document.querySelectorAll('.custom-row')){
     const name  = (row.querySelector('.cat-name').value || '').trim();
-    const count = +row.querySelector('.cat-count').value || 0;
-    const price = +row.querySelector('.cat-price').value || 0;
-    row.querySelector('.cat-val').textContent = tpl('valTimes', {q: count});
-    const m = Math.round(count * price);
+    const count  = +row.querySelector('.cat-count').value || 0;
+    const price  = +row.querySelector('.cat-price').value || 0;
+    const period = row.querySelector('.cat-recur').value;
+    row.querySelector('.cat-val').textContent = tpl(PERIOD_TIMES[period], {q: count});
+    const m = Math.round(count * price * PERIOD_FACTOR[period]);
     if (m > 0){
       monthly += m;
+      receiptData.push({item: (name || t('unnamed')).toUpperCase(), details: tpl(PERIOD_QTY[period], {q: count, u: 'x', p: price}), m});
       rows += `<div class="r-line">
-        <span class="l">${(name || t('unnamed')).toUpperCase()}<br><span class="qty">${tpl('qtyMo', {q: count, u: 'x', p: price})}</span></span>
+        <span class="l">${(name || t('unnamed')).toUpperCase()}<br><span class="qty">${tpl(PERIOD_QTY[period], {q: count, u: 'x', p: price})}</span></span>
         <span class="amt">${fmt(m)}</span></div>`;
     }
   }
 
+  lastTotals = {monthly, rentM};
   const opexM  = monthly - rentM;      // exact: both are integers
   const annual = monthly * 12;
 
@@ -1034,9 +1037,15 @@ document.getElementById('add-cat').onclick = () => {
       <button class="cat-del" title="${t('delCat')}" aria-label="${t('delCat')}">&times;</button>
     </label>
     <input class="cat-count" type="range" min="0" max="30" value="4">
-    <div class="hint avg"><span data-i18n="avgWord">${t('avgWord')}</span> <input class="price-edit cat-price" type="number" value="100" min="0"> <span>${t('sar')}</span></div>`;
+    <div class="hint avg"><span data-i18n="avgWord">${t('avgWord')}</span> <input class="price-edit cat-price" type="number" value="100" min="0"> <span>${t('sar')}</span>
+      <select class="recur cat-recur">
+        <option value="w" data-i18n="perWeekly">${t('perWeekly')}</option>
+        <option value="m" data-i18n="perMonthly" selected>${t('perMonthly')}</option>
+        <option value="q" data-i18n="perQuarterly">${t('perQuarterly')}</option>
+        <option value="y" data-i18n="perAnnually">${t('perAnnually')}</option>
+      </select></div>`;
   row.querySelector('.cat-del').onclick = () => { row.remove(); calc(); };
-  row.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+  row.querySelectorAll('input, select').forEach(i => { i.addEventListener('input', calc); i.addEventListener('change', calc); });
   customList.appendChild(row);
   row.querySelector('.cat-name').focus();
   calc();
@@ -1404,6 +1413,35 @@ document.getElementById('share-copy').onclick = async () => {
   }
 };
 
+/* ---------- CSV export ---------- */
+function csvField(v){
+  let x = String(v).replace(/&bull;/g,'\u2022').replace(/&ndash;/g,'\u2013');
+  if (/^[=+\-@]/.test(x)) x = "'" + x;              // formula-injection guard
+  return '"' + x.replace(/"/g,'""') + '"';
+}
+
+function buildCsv(){
+  const rows = [[t('csvItem'), t('csvDetails'), t('csvMonthly'), t('csvAnnual')]];
+  for (const r of receiptData) rows.push([r.item, r.details, r.m, r.m * 12]);
+  const opex = lastTotals.monthly - lastTotals.rentM;
+  rows.push([t('rRent'),    '', lastTotals.rentM,   lastTotals.rentM * 12]);
+  rows.push([t('rOpex'),    '', opex,               opex * 12]);
+  rows.push([t('rMonthly'), '', lastTotals.monthly, '']);
+  rows.push([t('rAnnual'),  '', '',                 lastTotals.monthly * 12]);
+  return '\uFEFF' + rows.map(r => r.map(csvField).join(',')).join('\r\n');
+}
+
+document.getElementById('export-csv').onclick = () => {
+  const blob = new Blob([buildCsv()], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'riyadh-receipt-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+};
+
 /* ---------- language switch ---------- */
 function applyLang(lang){
   LANG = lang;
@@ -1437,7 +1475,10 @@ new IntersectionObserver(es => { opexInView = es[0].isIntersecting; syncBar(); }
 new IntersectionObserver(es => { receiptInView = es[0].isIntersecting; syncBar(); },
   {threshold:0.25}).observe(document.getElementById('receipt'));
 
-document.querySelectorAll('.controls input').forEach(el => el.addEventListener('input', calc));
+document.querySelectorAll('.controls input, .controls select').forEach(el => {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
 calc();
 </script>
 </body>
